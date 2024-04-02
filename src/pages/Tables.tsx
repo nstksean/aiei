@@ -1,8 +1,6 @@
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import { DataTable } from '../components/DateTable/data-table';
-import TaskTable from '../components/Tables/TableOne';
 import TableThree from '../components/Tables/TableThree';
-import TableTwo from '../components/Tables/TableTwo';
 import DefaultLayout from '../layout/DefaultLayout';
 import { Payment, columns } from '../components/DateTable/colums';
 
@@ -48,15 +46,9 @@ const Tables = () => {
 
   return (
     <DefaultLayout>
-      <Breadcrumb pageName="Tables" />
-
       <div className="flex flex-col gap-10">
-        <TaskTable />
-        <TableTwo />
+        <DataTable columns={columns} data={data} />
         <TableThree />
-        <div className="container mx-auto py-10">
-          <DataTable columns={columns} data={data} />
-        </div>
       </div>
     </DefaultLayout>
   );

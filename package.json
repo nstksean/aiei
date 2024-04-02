@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview"
   },
-  "author": "",
+  "author": "seann",
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.0.4",
     "@radix-ui/react-dropdown-menu": "^2.0.6",
@@ -48,7 +48,7 @@
     "vite": "^4.4.7",
     "webpack": "^5.88.2"
   },
-  "description": "",
+  "description": "You'll need to install Node.js >=v14.16+ (Recommended Version) (NPM comes along with it) and TailAdmin uses **Vite** for frontend tooling, to peform installation and building production version, please follow these steps from below:",
   "main": "vite.config.js",
   "license": "ISC"
 }
