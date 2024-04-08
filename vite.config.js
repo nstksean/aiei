@@ -9,7 +9,7 @@ export default defineConfig({
     include: "**/*.tsx/*.jsx",
   })],
   server:{
-    host: '0.0.0.0',
+    host: true,
     watch:{
       usePolling: true 
     }
