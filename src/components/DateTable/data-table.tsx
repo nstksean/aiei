@@ -50,6 +50,10 @@ export function DataTable<TData, TValue>({
         rowSelection,
         columnFilters,
     },
+    removeRow: (id:number) => {
+        const setFilterFun = (old:TData[])=> old.filter( (_row:TData, index:number)=> index !==id);
+        setData(setFilterFun);
+    },
     })
 
     return (
