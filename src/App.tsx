@@ -13,6 +13,7 @@ import Tables from './pages/Tables';
 import Alerts from './pages/UiElements/Alerts';
 import Buttons from './pages/UiElements/Buttons';
 import NoFound from './pages/NoFound';
+import SelectScenarios from './pages/SelectScenarios';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -118,6 +119,15 @@ function App() {
             <>
             <PageTitle title="Not Found"/>
             <NoFound/>
+            </>
+          }
+        />
+        <Route
+          path='/SelectScenarios'
+          element={
+            <>
+            <PageTitle title="Select Scenarios"/>
+            <SelectScenarios/>
             </>
           }
         />

@@ -49,6 +49,9 @@ const Tables = () => {
 
   return (
     <DefaultLayout>
+      <h2 className="text-title-md2 mb-6 font-semibold text-black dark:text-white">
+        Task
+      </h2>
       <div className="flex flex-col gap-10">
         <DataTable columns={columns} data={tableDatas} />
         <TableThree />
