@@ -14,6 +14,7 @@ import Alerts from './pages/UiElements/Alerts';
 import Buttons from './pages/UiElements/Buttons';
 import NoFound from './pages/NoFound';
 import SelectScenarios from './pages/SelectScenarios';
+import DataFetch from './pages/dataFetch';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -128,6 +129,15 @@ function App() {
             <>
             <PageTitle title="Select Scenarios"/>
             <SelectScenarios/>
+            </>
+          }
+        />
+        <Route
+          path='/DataFetch'
+          element={
+            <>
+            <PageTitle title="DataFetch"/>
+            <DataFetch/>
             </>
           }
         />

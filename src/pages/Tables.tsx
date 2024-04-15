@@ -3,7 +3,8 @@ import { DataTable } from '../components/DateTable/data-table';
 import TableThree from '../components/Tables/TableThree';
 import DefaultLayout from '../layout/DefaultLayout';
 import { Payment, columns } from '../components/DateTable/colums';
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
+import useSWR from 'swr';
 
 
 const Tables = () => {
@@ -47,6 +48,12 @@ const Tables = () => {
   ]
   );
 
+  const {data : inference_job} = useSWR('inference_job')
+  console.log(inference_job)
+  useEffect(() => {
+    setTableDatas(inference_job);
+  }, [tableDatas]);
+
   return (
     <DefaultLayout>
       <h2 className="text-title-md2 mb-6 font-semibold text-black dark:text-white">
@@ -54,7 +61,7 @@ const Tables = () => {
       </h2>
       <div className="flex flex-col gap-10">
         <DataTable columns={columns} data={tableDatas} />
-        <TableThree />
+        {/* <TableThree /> */}
       </div>
     </DefaultLayout>
   );

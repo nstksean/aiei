@@ -4,165 +4,171 @@ import ScenarioCard from "../components/Scenarios/ScenarioCard";
 import { scenariosColumn,Scenarios } from "../components/Scenarios/ScenariosSelect";
 import { useState,useEffect } from 'react';
 import Breadcrumb from "../components/Breadcrumbs/Breadcrumb";
+import useSWR from "swr";
 
 
 export default function SelectScenarios(){
-
   const [scenarioDatas, setScenarioDatas] = useState<Scenarios>([
     {
       id: "0",
-      title: "First Scenario",
-      introduction: "This is First Scenario",
+      caption: "First Scenario",
+      description: "This is First Scenario",
     },
     {
       id: "1",
-      title: "Second Scenario",
-      introduction: "This is Second Scenario",
+      caption: "Second Scenario",
+      description: "This is Second Scenario",
     },
     {
       id: "2",
-      title: "Third Scenario",
-      introduction: "This is F Scenario",
+      caption: "Third Scenario",
+      description: "This is F Scenario",
     },
     {
       id: "3",
-      title: "Fourth Scenario",
-      introduction: "This is Fourth Scenario",
+      caption: "Fourth Scenario",
+      description: "This is Fourth Scenario",
     },
     {
       id: "4",
-      title: "Fifth Scenario",
-      introduction: "This is Fifth Scenario",
+      caption: "Fifth Scenario",
+      description: "This is Fifth Scenario",
     },
     {
       id: "5",
-      title: "Sixth Scenario",
-      introduction: "This is sixth Scenario",
+      caption: "Sixth Scenario",
+      description: "This is sixth Scenario",
     },{
       id: "1",
-      title: "Second Scenario",
-      introduction: "This is Second Scenario",
+      caption: "Second Scenario",
+      description: "This is Second Scenario",
     },
     {
       id: "2",
-      title: "Third Scenario",
-      introduction: "This is F Scenario",
+      caption: "Third Scenario",
+      description: "This is F Scenario",
     },
     {
       id: "3",
-      title: "Fourth Scenario",
-      introduction: "This is Fourth Scenario",
+      caption: "Fourth Scenario",
+      description: "This is Fourth Scenario",
     },
     {
       id: "4",
-      title: "Fifth Scenario",
-      introduction: "This is Fifth Scenario",
+      caption: "Fifth Scenario",
+      description: "This is Fifth Scenario",
     },
     {
       id: "5",
-      title: "Sixth Scenario",
-      introduction: "This is sixth Scenario",
+      caption: "Sixth Scenario",
+      description: "This is sixth Scenario",
     },{
       id: "1",
-      title: "Second Scenario",
-      introduction: "This is Second Scenario",
+      caption: "Second Scenario",
+      description: "This is Second Scenario",
     },
     {
       id: "2",
-      title: "Third Scenario",
-      introduction: "This is F Scenario",
+      caption: "Third Scenario",
+      description: "This is F Scenario",
     },
     {
       id: "3",
-      title: "Fourth Scenario",
-      introduction: "This is Fourth Scenario",
+      caption: "Fourth Scenario",
+      description: "This is Fourth Scenario",
     },
     {
       id: "4",
-      title: "Fifth Scenario",
-      introduction: "This is Fifth Scenario",
+      caption: "Fifth Scenario",
+      description: "This is Fifth Scenario",
     },
     {
       id: "5",
-      title: "Sixth Scenario",
-      introduction: "This is sixth Scenario",
+      caption: "Sixth Scenario",
+      description: "This is sixth Scenario",
     },{
       id: "1",
-      title: "Second Scenario",
-      introduction: "This is Second Scenario",
+      caption: "Second Scenario",
+      description: "This is Second Scenario",
     },
     {
       id: "2",
-      title: "Third Scenario",
-      introduction: "This is F Scenario",
+      caption: "Third Scenario",
+      description: "This is F Scenario",
     },
     {
       id: "3",
-      title: "Fourth Scenario",
-      introduction: "This is Fourth Scenario",
+      caption: "Fourth Scenario",
+      description: "This is Fourth Scenario",
     },
     {
       id: "4",
-      title: "Fifth Scenario",
-      introduction: "This is Fifth Scenario",
+      caption: "Fifth Scenario",
+      description: "This is Fifth Scenario",
     },
     {
       id: "5",
-      title: "Sixth Scenario",
-      introduction: "This is sixth Scenario",
+      caption: "Sixth Scenario",
+      description: "This is sixth Scenario",
     },{
       id: "1",
-      title: "Second Scenario",
-      introduction: "This is Second Scenario",
+      caption: "Second Scenario",
+      description: "This is Second Scenario",
     },
     {
       id: "2",
-      title: "Third Scenario",
-      introduction: "This is F Scenario",
+      caption: "Third Scenario",
+      description: "This is F Scenario",
     },
     {
       id: "3",
-      title: "Fourth Scenario",
-      introduction: "This is Fourth Scenario",
+      caption: "Fourth Scenario",
+      description: "This is Fourth Scenario",
     },
     {
       id: "4",
-      title: "Fifth Scenario",
-      introduction: "This is Fifth Scenario",
+      caption: "Fifth Scenario",
+      description: "This is Fifth Scenario",
     },
     {
       id: "5",
-      title: "Sixth Scenario",
-      introduction: "This is sixth Scenario",
+      caption: "Sixth Scenario",
+      description: "This is sixth Scenario",
     },{
       id: "1",
-      title: "Second Scenario",
-      introduction: "This is Second Scenario",
+      caption: "Second Scenario",
+      description: "This is Second Scenario",
     },
     {
       id: "2",
-      title: "Third Scenario",
-      introduction: "This is F Scenario",
+      caption: "Third Scenario",
+      description: "This is F Scenario",
     },
     {
       id: "3",
-      title: "Fourth Scenario",
-      introduction: "This is Fourth Scenario",
+      caption: "Fourth Scenario",
+      description: "This is Fourth Scenario",
     },
     {
       id: "4",
-      title: "Fifth Scenario",
-      introduction: "This is Fifth Scenario",
+      caption: "Fifth Scenario",
+      description: "This is Fifth Scenario",
     },
     {
       id: "5",
-      title: "Sixth Scenario",
-      introduction: "This is sixth Scenario",
+      caption: "Sixth Scenario",
+      description: "This is sixth Scenario",
     },
     
   ]
   );
   const [chosenRow,setChosenRow]= useState({})
+
+  const {data : scenario} = useSWR('scenario')
+  console.log(scenario)
+  useEffect(() => {
+    setScenarioDatas(scenario);
+  }, [scenarioDatas]);
 
   return(
   <DefaultLayout>

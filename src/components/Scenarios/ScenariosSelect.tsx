@@ -33,8 +33,8 @@ interface DataTableProps<TData, TValue> {
 
 export type Scenarios = {
     id: string
-    title: string
-    introduction: string
+    caption: string
+    description: string
 }
 /* table column config */
 export const scenariosColumn: ColumnDef<Scenarios>[] = [
@@ -62,13 +62,13 @@ export const scenariosColumn: ColumnDef<Scenarios>[] = [
         enableHiding: false,
     },
     {
-        accessorKey: "title",
-        header: "title",
+        accessorKey: "caption",
+        header: "caption",
         cell:({row}) => (
             <React.Fragment>
                 <div className="">
-                    <div className="font-medium text-black">{row.original.title}</div>
-                    <div className="font-medium text-sm">{row.original.introduction}</div>
+                    <div className="font-medium text-black">{row.original.caption}</div>
+                    <div className="font-medium text-sm">{row.original.description}</div>
                 </div>
             </React.Fragment>
         )
@@ -106,7 +106,7 @@ export default function ScenariosSelect<TData, TValue>({
     // setRowSelection({})
     let selectedDataIndex = Object.keys(rowSelection)[0]
     let selectedData ={} 
-    selectedData = data[selectedDataIndex]
+    if(data){selectedData = data[selectedDataIndex]}
     const onRefreshclick = ()=>{
         setRowSelection({})
     }
@@ -123,9 +123,9 @@ export default function ScenariosSelect<TData, TValue>({
             <div className="inline-flex items-center w-1/2">
                 <Input
                 placeholder="Filter Scenarios..."
-                value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
+                value={(table.getColumn("caption")?.getFilterValue() as string) ?? ""}
                 onChange={(event) =>
-                    table.getColumn("title")?.setFilterValue(event.target.value)
+                    table.getColumn("caption")?.setFilterValue(event.target.value)
                 }
                 className="border-2 focus:border-blue-500 min-w-45"
                 />

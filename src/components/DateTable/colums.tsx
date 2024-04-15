@@ -35,11 +35,11 @@ export const columns: ColumnDef<Payment>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: "id",
+    header: "ID",
   },
   {
-    accessorKey: "email",
+    accessorKey: "name",
     header: ({ column }) => {
       return (
         <Button
@@ -47,22 +47,14 @@ export const columns: ColumnDef<Payment>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="text-sm font-medium uppercase xsm:text-base"
         >
-          Email
+          Name
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       )
     },  },
   {
-    accessorKey: "amount",
-    header: () => <div className="text-right">Amount</div>,
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("amount"))
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount)
-      return <div className="text-right font-medium">{formatted}</div>
-    },
+    accessorKey: "user_note",
+    header: () => <div className="text-right">User Note</div>,
   },
   {
     id: "actions",

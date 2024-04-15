@@ -71,10 +71,10 @@ export function DataTable<TData, TValue>({
                   <path fill-rule="evenodd" clip-rule="evenodd" d="M13.2857 13.2857C13.6112 12.9603 14.1388 12.9603 14.4642 13.2857L18.0892 16.9107C18.4147 17.2362 18.4147 17.7638 18.0892 18.0892C17.7638 18.4147 17.2362 18.4147 16.9107 18.0892L13.2857 14.4642C12.9603 14.1388 12.9603 13.6112 13.2857 13.2857Z" fill=""></path>
               </svg>
               <Input
-              placeholder="Filter emails..."
-              value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+              placeholder="Filter Names..."
+              value={(table.getColumn("Name")?.getFilterValue() as string) ?? ""}
               onChange={(event) =>
-                  table.getColumn("email")?.setFilterValue(event.target.value)
+                  table.getColumn("Name")?.setFilterValue(event.target.value)
               }
               className="max-w-sm border-0"
               />

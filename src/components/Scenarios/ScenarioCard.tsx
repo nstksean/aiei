@@ -8,8 +8,9 @@ export default function ScenarioCard({
 }){
 
 let scenarioId = chosenRow?.id? chosenRow.id : " "
-let scenarioTitle = chosenRow?.title? chosenRow.title : "Select A Scenario on The Left"
-let scenarioIntro = chosenRow?.introduction? chosenRow.introduction : " "
+let scenarioTitle = chosenRow?.caption? chosenRow.caption : "Select A Scenario on The Left"
+let scenarioIntro = chosenRow?.description? chosenRow.description : " "
+let scenarioNN = chosenRow?.nn_arch? chosenRow?.nn_arch : ''
     return(
         <div className="basis-3/5 h-full bg-slate-50 shadow-default rounded-md max-h-[740px] flex flex-col justify-between px-5 pt-2">
           {/* Scenario intro */}
@@ -25,13 +26,13 @@ let scenarioIntro = chosenRow?.introduction? chosenRow.introduction : " "
           </div>
           {/* nn and event */}
           <div className=" rounded-md overflow-y-auto max-h-[580px] min-h-96 flex gap-2 ">
-            <div className="basis-1/2  bg-yellow-100 shadow-default border border-zinc-400 p-2 flex flex-col overflow-y-auto">
+            <div className="basis-1/2 shadow-default bg-white p-2 flex flex-col overflow-y-auto">
               <p className="text-base text-blue-600 font-medium  ">Pipeline Information</p>
               <hr/>
               <p className="text-base text-zinc-700 font-bold">NN：</p>
-              <p className="text-base text-zinc-700 ">{`nopqrstuvwxyz`}</p>
+              <p className="text-base text-zinc-700 ">{scenarioNN}</p>
             </div>
-            <div className="basis-1/2 bg-orange-100 shadow-default  p-2 flex flex-col overflow-y-auto">
+            <div className="basis-1/2  shadow-default bg-white p-2 flex flex-col overflow-y-auto">
               <p className="text-base text-blue-600 font-medium  ">Event:</p>
               <hr/>
                 {/* Event container */}

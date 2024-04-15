@@ -58,7 +58,7 @@ const Header = (props: {
 
           <Link className="block flex-shrink-0 lg:hidden" to="/">
             {/* <img src={LogoIcon} alt="Logo" /> */}
-            <h2 className="text-black">{`AiEi Platform`}</h2>
+            <h2 className="text-black">{`AiEi System`}</h2>
           </Link>
         </div>
 
