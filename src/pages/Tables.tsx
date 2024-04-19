@@ -1,52 +1,14 @@
-import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
+import TailBreadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import { DataTable } from '../components/DateTable/data-table';
 import TableThree from '../components/Tables/TableThree';
 import DefaultLayout from '../layout/DefaultLayout';
-import { Payment, columns } from '../components/DateTable/colums';
+import { InterenceJob, columns } from '../components/DateTable/colums';
 import { useState,useEffect } from 'react';
 import useSWR from 'swr';
 
 
 const Tables = () => {
-  const [tableDatas, setTableDatas] = useState<Payment>([
-    {
-      id: "728ed52f",
-      amount: 100,
-      status: "pending",
-      email: "m@example.com",
-    },
-    {
-      id: "m5gr84i9",
-      amount: 316,
-      status: "success",
-      email: "ken99@yahoo.com",
-    },
-    {
-      id: "3u1reuv4",
-      amount: 242,
-      status: "success",
-      email: "Abe45@gmail.com",
-    },
-    {
-      id: "derv1ws0",
-      amount: 837,
-      status: "processing",
-      email: "Monserrat44@gmail.com",
-    },
-    {
-      id: "5kma53ae",
-      amount: 874,
-      status: "success",
-      email: "Silas22@gmail.com",
-    },
-    {
-      id: "bhqecj4p",
-      amount: 721,
-      status: "failed",
-      email: "carmella@hotmail.com",
-    }
-  ]
-  );
+  const [tableDatas, setTableDatas] = useState<InterenceJob>([]);
 
   const {data : inference_job} = useSWR('inference_job')
   console.log(inference_job)

@@ -15,6 +15,7 @@ import Buttons from './pages/UiElements/Buttons';
 import NoFound from './pages/NoFound';
 import SelectScenarios from './pages/SelectScenarios';
 import DataFetch from './pages/dataFetch';
+import NewTask from'./pages/NewTask'
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -138,6 +139,15 @@ function App() {
             <>
             <PageTitle title="DataFetch"/>
             <DataFetch/>
+            </>
+          }
+        />
+        <Route
+          path='/NewTask'
+          element={
+            <>
+            <PageTitle title="NewTask"/>
+            <NewTask/>
             </>
           }
         />

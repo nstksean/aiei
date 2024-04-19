@@ -12,7 +12,7 @@ let scenarioTitle = chosenRow?.caption? chosenRow.caption : "Select A Scenario o
 let scenarioIntro = chosenRow?.description? chosenRow.description : " "
 let scenarioNN = chosenRow?.nn_arch? chosenRow?.nn_arch : ''
     return(
-        <div className="basis-3/5 h-full bg-slate-50 shadow-default rounded-md max-h-[740px] flex flex-col justify-between px-5 pt-2">
+        <div className="basis-3/5 h-full bg-slate-50 shadow-default rounded-md max-h-[740px] min-h-[360px] flex flex-col justify-between px-5 pt-2">
           {/* Scenario intro */}
           <div className="flex flex-col text-clip">
             <p className="text-xs text-blue-600 font-medium">Scenario ID：{scenarioId}</p>
@@ -27,16 +27,16 @@ let scenarioNN = chosenRow?.nn_arch? chosenRow?.nn_arch : ''
           {/* nn and event */}
           <div className=" rounded-md overflow-y-auto max-h-[580px] min-h-96 flex gap-2 ">
             <div className="basis-1/2 shadow-default bg-white p-2 flex flex-col overflow-y-auto">
-              <p className="text-base text-blue-600 font-medium  ">Pipeline Information</p>
-              <hr/>
-              <p className="text-base text-zinc-700 font-bold">NN：</p>
-              <p className="text-base text-zinc-700 ">{scenarioNN}</p>
+              <p className="text-base text-blue-600 font-medium bg-white mb-1 shadow-default">Pipeline Information</p>
+
+              <p className="text-base text-zinc-700 font-bold bg-white">NN：</p>
+              <p className="text-base text-zinc-700 bg-white">{scenarioNN}</p>
             </div>
             <div className="basis-1/2  shadow-default bg-white p-2 flex flex-col overflow-y-auto">
-              <p className="text-base text-blue-600 font-medium  ">Event:</p>
-              <hr/>
+              <p className="text-base text-blue-600 font-medium bg-white mb-1 shadow-default">Event:</p>
+              
                 {/* Event container */}
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 bg-white shadow-default">
                   {/* single event */}
                   <div className="flex space-x-2 p-2">
                     <Checkbox id="terms1" />

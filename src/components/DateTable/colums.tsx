@@ -4,14 +4,13 @@ import { MoreHorizontal, ArrowUpDown, Trash2, Pencil } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "../ui/checkbox"
 
-export type Payment = {
-  id: string
-  amount: number
-  status: "pending" | "processing" | "success" | "failed"
-  email: string
+export type InterenceJob = {
+  id: number
+  name: string
+  user_note: string
 }
 
-export const columns: ColumnDef<Payment>[] = [
+export const columns: ColumnDef<InterenceJob>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -54,7 +53,7 @@ export const columns: ColumnDef<Payment>[] = [
     },  },
   {
     accessorKey: "user_note",
-    header: () => <div className="text-right">User Note</div>,
+    header: () => <div className="">User Note</div>,
   },
   {
     id: "actions",
@@ -62,14 +61,14 @@ export const columns: ColumnDef<Payment>[] = [
       const payment = row.original
 
       return (
-        <>
-          <Button>
+        <div className="flex gap-4">
+          <Button variant="outline" size="icon">
             <Trash2 className="h-4 w-4"/>
           </Button>
-          <Button >
+          <Button variant="outline" size="icon">
             <Pencil className="h-4 w-4"/>
           </Button>
-      </>
+      </div>
       )
     },
   },

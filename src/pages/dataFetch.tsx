@@ -1,4 +1,4 @@
-import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
+import TailBreadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../layout/DefaultLayout';
 import useSWR from 'swr'
 import axios from 'axios'
@@ -22,7 +22,7 @@ export default function DataFetch(){
 
   return (
     <DefaultLayout>
-      <Breadcrumb pageName="Fetch" />
+      <TailBreadcrumb pageName="Fetch" />
       <div className="flex flex-col gap-10">
         <h2>Basic Data Loading</h2>
         <p>use id: {}</p>

@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useState,useEffect } from 'react';
 
 import {
     ColumnDef,
@@ -31,13 +32,15 @@ interface DataTableProps<TData, TValue> {
     data: TData[]
 }
 
-export type Scenarios = {
+export type Cameras = {
     id: string
-    caption: string
+    name: string
     description: string
+    location:string
+    inference_job:array
 }
 /* table column config */
-export const scenariosColumn: ColumnDef<Scenarios>[] = [
+export const cameraColumn: ColumnDef<cameras>[] = [
     {
         id: "select",
         header: ({ table }) => (
@@ -62,29 +65,35 @@ export const scenariosColumn: ColumnDef<Scenarios>[] = [
         enableHiding: false,
     },
     {
-        accessorKey: "caption",
-        header: "caption",
+        accessorKey: "name",
+        header: "name",
         cell:({row}) => (
             <React.Fragment>
                 <div className="">
-                    <div className="font-medium text-black">{row.original.caption}</div>
+                    <div className="font-medium text-black">{row.original.name}</div>
                     <div className="font-medium text-sm">{row.original.description}</div>
+                    <div className="font-medium text-sm">{row.original.location}</div>
                 </div>
             </React.Fragment>
         )
     }
 ]
 
-export default function ScenariosSelect<TData, TValue>({
+export default function CameraSelect<TData, TValue>({
     columns,
     data,
-    setChosenRow,
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [rowSelection, setRowSelection] = React.useState({})
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
 
+    const [chosenRow,setChosenRow]= React.useState({})
 
+    React.useEffect(() => {
+        setChosenRow(selectedData)
+
+    }, [rowSelection]);
+    
     const table = useReactTable({
     data,
     columns,
@@ -100,7 +109,6 @@ export default function ScenariosSelect<TData, TValue>({
         columnFilters,
     },
     enableMultiRowSelection: false,
-
     })
 
     // setRowSelection({})
@@ -111,27 +119,16 @@ export default function ScenariosSelect<TData, TValue>({
         setRowSelection({})
     }
     
-    React.useEffect(() => {
+    useEffect(() => {
         setChosenRow(selectedData)
 
-      }, [rowSelection]);
+    }, [rowSelection]);
 
     return (
     <div className="basis-2/5 h-full bg-white px-5 pt-2 pb-2 shadow-default rounded-md max-h-[740px] min-h-[300px] overflow-hidden">
-        {/* scenario tool bar */}
+        {/* camera tool bar */}
         <div className="flex items-center py-2 justify-between h-14 text-clip">
-            <div className="inline-flex items-center w-1/2">
-                <Input
-                placeholder="Filter Scenarios..."
-                value={(table.getColumn("caption")?.getFilterValue() as string) ?? ""}
-                onChange={(event) =>{
-                    setRowSelection({})
-                    table.getColumn("caption")?.setFilterValue(event.target.value)
-                }
-                }
-                className="border-2 focus:border-blue-500 min-w-45"
-                />
-            </div>
+            <p className="text-xl text-blue-600 font-medium">Cameras</p>
             <Button variant="outline" size="icon" onClick={onRefreshclick}>
                 {/* <!-- refresh button --> */}
                 <svg 
@@ -145,11 +142,7 @@ export default function ScenariosSelect<TData, TValue>({
                 </svg>
             </Button>
         </div>
-        {/* scenario title */}
-        <div className="flex flex-col h-16 text-clip">
-                <p className="text-3xl text-blue-600 font-medium">Scenarios</p>
-                <p className="text-lg text-blue-600 font-medium">Step.1 Select Scenario</p>
-        </div>
+        {/* Camera table */}
         <div className="h-5/6 rounded-md overflow-y-auto max-h-[580px] min-h-19">
             <Table className='border-separate border-spacing-y-2' >
             <TableHeader className="bg-gray-2 hidden">
@@ -171,7 +164,7 @@ export default function ScenariosSelect<TData, TValue>({
                 ))}
             </TableHeader>
             <TableBody>
-                {table.getRowModel().rows?.length ? (
+                {table.getRowModel().rows.length ? (
                 table.getRowModel().rows.map((row) => (
                     <TableRow
                     className="bg-blue-50 !border border-zinc-600 focus:border-2 border-zinc-950 data-[state=selected]:!bg-blue-200 data-[state=selected]:!border-2"
