@@ -14,7 +14,7 @@ const Tables = () => {
   console.log(inference_job)
   useEffect(() => {
     setTableDatas(inference_job);
-  }, [tableDatas]);
+  }, []);
 
   return (
     <DefaultLayout>

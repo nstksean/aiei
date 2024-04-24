@@ -1,18 +1,96 @@
-import * as React from "react"
+import {useEffect,useState}from "react"
 import { Checkbox } from "@/components/ui/checkbox"
-import { NavLink } from "react-router-dom"
+import { NavLink, useNavigate } from "react-router-dom"
+import { Button } from "../ui/button"
+
+import useNewTask from "../../stores/useNewTask"
 
 
 
 export default function ScenarioCard({
   chosenRow,
-  onNextClick
-}){
+}) {
+  const { newTaskConfig,configScenario } = useNewTask();
+  const newTaskConfigStore = useNewTask();
 
-let scenarioId = chosenRow?.id? chosenRow.id : " "
-let scenarioTitle = chosenRow?.caption? chosenRow.caption : "Select A Scenario on The Left"
-let scenarioIntro = chosenRow?.description? chosenRow.description : " "
-let scenarioNN = chosenRow?.nn_arch? chosenRow?.nn_arch : ''
+  const [chosenScenario, setChosenScenario] = useState({})
+  const [taskConfig_scenario, setTaskConfig_scenario] = useState({
+    scenario_id: null,
+    event_type_config: null
+  })
+  const [allowNext, setAllowNext] = useState(false)
+
+  useEffect(() => {
+    setChosenScenario(chosenRow)
+  }, [chosenRow])
+
+  let scenarioId = chosenScenario?.id ? chosenScenario.id : " "
+  let scenarioTitle = chosenScenario?.caption ? chosenScenario.caption : "Select A Scenario on The Left"
+  let scenarioIntro = chosenScenario?.description ? chosenScenario.description : " "
+  let scenarioNN = chosenScenario?.nn_arch ? chosenScenario.nn_arch : ''
+  let eventTypes = chosenScenario?.event_type ? chosenScenario.event_type : []
+
+  function gatherTaskConfig(){
+    const newTaskConfig = {
+      scenario_id:chosenScenario?.id ? chosenScenario.id : null,
+      event_type_config:chosenScenario?.event_type ? chosenScenario.event_type : []
+    }
+    console.log('gatherTaskConfig',newTaskConfig)
+    setTaskConfig_scenario(newTaskConfig)
+    return updateStore(newTaskConfig)
+    };
+
+  function onNextClick(){
+    ()=>handleNextClick()
+  }
+  
+  function onLogClick(){
+    console.log('log',newTaskConfig,newTaskConfigStore)
+  }
+
+  function updateStore(newTaskConfig){
+    if (newTaskConfig.scenario_id === null){
+      console.log('no data')
+      return
+    }else if (Number.isInteger(newTaskConfig.scenario_id)){
+      newTaskConfigStore.configScenario(newTaskConfig)
+      console.log('set data')
+    }
+  }
+
+  function checkTaskConfig(){
+    if (taskConfig_scenario.scenario_id !== null && taskConfig_scenario.event_type_config.length >0 ){
+      setAllowNext(true)
+      console.log('check_PASS')
+    }else{
+      setAllowNext(false) 
+      console.log('check_FAIL')
+    }
+  }
+
+  useEffect(() => {
+    checkTaskConfig()
+  }, [taskConfig_scenario,allowNext])
+
+  /* button component */
+  function NextButton(
+    disabled={allowNext},
+    handleNextClick
+  ){
+    const navigate = useNavigate()
+    function handleNextClick() {
+      navigate("/newtask");
+    }
+    return(
+      <Button 
+            onClick={handleNextClick}
+            className={"inline-flex items-center justify-center rounded-md bg-meta-3 py-2 px-2 text-center font-medium text-white hover:bg-opacity-80 lg:px-4 xl:px-4 2xl:px-6"}
+            disabled = {!allowNext}
+            >Next
+      </Button>
+    );
+  }
+  /* button component */
 
     return(
       <div className="border border-stroke basis-3/5 h-full bg-slate-50 shadow-default rounded-md max-h-[740px] min-h-[360px] flex flex-col justify-between px-5 pt-2">
@@ -41,29 +119,34 @@ let scenarioNN = chosenRow?.nn_arch? chosenRow?.nn_arch : ''
               {/* Event container */}
               <div className="flex flex-col gap-2 bg-white shadow-default">
                 {/* single event */}
-                <div className="flex space-x-2 p-2">
-                  <Checkbox id="terms1" />
-                  <div className="grid gap-1.5 leading-none">
-                    <label
-                      htmlFor="terms1"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      Event
-                    </label>
-                  </div>
-                </div>
+                  { (eventTypes === undefined || eventTypes?.length === 0 ) ? (
+                    <div >{''}</div>
+                    ) : (
+                    eventTypes.map((eventType)=>(
+                      <div className="flex space-x-2 p-2" key={eventType.id}>
+                        <Checkbox id={eventType.id} />
+                        <div className="grid gap-1.5 leading-none">
+                          <label
+                            htmlFor={eventType.id}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
+                            {eventType.name}
+                        </label>
+                        </div>
+                      </div>))
+                    )}
               </div>
             </div>
         </div>
         {/* next button */}
         <div className="flex flex-row-reverse min-h-10 pb-2 px-2">
-          <NavLink
-          to="/NewTask"
-          className="inline-flex items-center justify-center rounded-md bg-meta-3 py-2 px-2 text-center font-medium text-white hover:bg-opacity-80 lg:px-4 xl:px-4 2xl:px-6"
-          onClick={onNextClick}
-          >
-          Next
-          </NavLink>
+          <NextButton disabled={allowNext} handleNextClick={onNextClick}/>
+          {/* test Zustand */}
+          <Button 
+          onClick={gatherTaskConfig}
+          className=" mx-2 inline-flex items-center justify-center rounded-md bg-meta-3 py-2 px-2 text-center font-medium text-white hover:bg-opacity-80 lg:px-4 xl:px-4 2xl:px-6"
+          >Config
+          </Button>
         </div>
       </div>
     );

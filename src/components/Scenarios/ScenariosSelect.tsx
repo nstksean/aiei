@@ -130,7 +130,6 @@ export default function ScenariosSelect<TData, TValue>({
     },[getScenarios])
 
     React.useEffect(() => {
-        console.log(selectedData)
         setChosenRow(selectedData)
     }, [rowSelection]);
 

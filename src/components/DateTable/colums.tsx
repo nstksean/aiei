@@ -67,7 +67,6 @@ export const columns: ColumnDef<InterenceJob>[] = [
     header: () => <div className="">Notification</div>,
     cell: ({row}) => {
       const eventData = row.original
-      console.log('rowcell',eventData)
       return (
         <React.Fragment>
                 <div className="">
