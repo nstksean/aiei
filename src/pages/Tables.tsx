@@ -22,7 +22,10 @@ const Tables = () => {
         Task
       </h2>
       <div className="flex flex-col gap-10">
-        <DataTable columns={columns} data={tableDatas} />
+        <DataTable 
+        columns={columns} 
+        data={tableDatas} 
+        setTableDatas={setTableDatas}/>
         {/* <TableThree /> */}
       </div>
     </DefaultLayout>

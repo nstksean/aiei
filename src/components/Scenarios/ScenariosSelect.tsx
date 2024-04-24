@@ -1,4 +1,5 @@
 import * as React from "react"
+import axios from "axios"
 
 import {
     ColumnDef,
@@ -22,6 +23,8 @@ import {
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "../ui/checkbox"
 import { Button } from "../ui/button"
+import {activeFetchData} from '../../api'
+
 import { RotateCw, Search  } from 'lucide-react';
 
 
@@ -79,6 +82,8 @@ export default function ScenariosSelect<TData, TValue>({
     columns,
     data,
     setChosenRow,
+    setScenarioDatas
+
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [rowSelection, setRowSelection] = React.useState({})
@@ -100,24 +105,37 @@ export default function ScenariosSelect<TData, TValue>({
         columnFilters,
     },
     enableMultiRowSelection: false,
-
     })
 
-    // setRowSelection({})
     let selectedDataIndex = Object.keys(rowSelection)[0]
     let selectedData ={} 
     if(data){selectedData = data[selectedDataIndex]}
-    const onRefreshclick = ()=>{
-        setRowSelection({})
-    }
+    const [endpoint, setEndpoint] = React.useState('scenario')
+
+    const getScenarios = React.useCallback(async () => {
+        const response = await axios.get(`http://10.10.80.228:8043/api/${endpoint}`);
+        setScenarioDatas(response.data);
+      }, [endpoint]);
     
     React.useEffect(() => {
-        setChosenRow(selectedData)
+        getScenarios();
+    }, [getScenarios]);
+    const onRefreshclick = ()=>{
+        getScenarios();
+        setRowSelection([])
+    }
 
-      }, [rowSelection]);
+    React.useEffect(()=>{
+        getScenarios()
+    },[getScenarios])
+
+    React.useEffect(() => {
+        console.log(selectedData)
+        setChosenRow(selectedData)
+    }, [rowSelection]);
 
     return (
-    <div className="basis-2/5 h-full bg-white px-5 pt-2 pb-2 shadow-default rounded-md max-h-[740px] min-h-[300px] overflow-hidden">
+    <div className="basis-2/5 h-full bg-white px-5 pt-2 pb-2 shadow-default rounded-md max-h-[740px] min-h-[300px] overflow-hidden border border-stroke">
         {/* scenario tool bar */}
         <div className="flex items-center py-2 justify-between h-14 text-clip">
             <div className="inline-flex items-center w-1/2">

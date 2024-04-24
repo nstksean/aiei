@@ -1,3 +1,4 @@
+import * as React from 'react'
 import { ColumnDef } from "@tanstack/react-table"
 import { MoreHorizontal, ArrowUpDown, Trash2, Pencil } from "lucide-react"
 
@@ -5,8 +6,14 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "../ui/checkbox"
 
 export type InterenceJob = {
+  camera: array
+  event: array
+  event_type_config: object
   id: number
+  inference_config: object
   name: string
+  scenario: object
+  schedule_config: object
   user_note: string
 }
 
@@ -54,6 +61,21 @@ export const columns: ColumnDef<InterenceJob>[] = [
   {
     accessorKey: "user_note",
     header: () => <div className="">User Note</div>,
+  },
+  {
+    accessorKey:"event",
+    header: () => <div className="">Notification</div>,
+    cell: ({row}) => {
+      const eventData = row.original
+      console.log('rowcell',eventData)
+      return (
+        <React.Fragment>
+                <div className="">
+                  {eventData?.event.length}
+                </div>
+        </React.Fragment>
+      )
+    }
   },
   {
     id: "actions",

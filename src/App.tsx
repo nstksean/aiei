@@ -16,6 +16,7 @@ import NoFound from './pages/NoFound';
 import SelectScenarios from './pages/SelectScenarios';
 import DataFetch from './pages/dataFetch';
 import NewTask from'./pages/NewTask'
+import TaskInfo from './pages/TaskInfo'
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -148,6 +149,15 @@ function App() {
             <>
             <PageTitle title="NewTask"/>
             <NewTask/>
+            </>
+          }
+        />
+        <Route
+          path='/TaskInfo'
+          element={
+            <>
+            <PageTitle title="TaskInfo"/>
+            <TaskInfo/>
             </>
           }
         />

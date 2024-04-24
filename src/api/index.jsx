@@ -17,3 +17,18 @@ export function ApiProvider({ children, options }) {
       </SWRConfig>
     );
   }
+
+  export  async function activeFetchData(endpoint,setFn){
+    try {
+      const response = await fetch(
+        `${baseUrl}`+'api/'+endpoint,
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      const data = await response.json();
+      return setFn(data);
+    } catch (error) {
+      console.error(`Could not get products: ${error}`);
+    }
+  }

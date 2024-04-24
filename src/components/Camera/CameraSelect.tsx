@@ -82,54 +82,47 @@ export const cameraColumn: ColumnDef<cameras>[] = [
 export default function CameraSelect<TData, TValue>({
     columns,
     data,
+    fetchCameraData,
 }: DataTableProps<TData, TValue>) {
-    const [sorting, setSorting] = React.useState<SortingState>([])
     const [rowSelection, setRowSelection] = React.useState({})
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-
     const [chosenRow,setChosenRow]= React.useState({})
 
     React.useEffect(() => {
-        setChosenRow(selectedData)
-
-    }, [rowSelection]);
+        fetchCameraData()
+    }, []);
     
     const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
     onRowSelectionChange: setRowSelection,
-    onColumnFiltersChange: setColumnFilters,
-    getFilteredRowModel: getFilteredRowModel(),
     state: {
-        sorting,
         rowSelection,
-        columnFilters,
     },
     enableMultiRowSelection: false,
     })
 
-    // setRowSelection({})
-    let selectedDataIndex = Object.keys(rowSelection)[0]
-    let selectedData ={} 
-    if(data){selectedData = data[selectedDataIndex]}
-    const onRefreshclick = ()=>{
+    // // setRowSelection({})
+    // let selectedDataIndex = Object.keys(rowSelection)[0]
+    // let selectedData ={} 
+    // if(data){selectedData = data[selectedDataIndex]}
+    const onRefreshClick = ()=>{
         setRowSelection({})
+        fetchCameraData()
     }
     
-    useEffect(() => {
-        setChosenRow(selectedData)
+    // useEffect(() => {
+    //     setChosenRow(selectedData)
 
-    }, [rowSelection]);
+    // }, [rowSelection]);
 
     return (
-    <div className="basis-2/5 h-full bg-white px-5 pt-2 pb-2 shadow-default rounded-md max-h-[740px] min-h-[300px] overflow-hidden">
+    <div className="basis-2/5 h-full bg-white px-5 pt-2 pb-2 shadow-default rounded-md max-h-[470px] min-h-[300px] overflow-hidden border border-stroke">
         {/* camera tool bar */}
         <div className="flex items-center py-2 justify-between h-14 text-clip">
             <p className="text-xl text-blue-600 font-medium">Cameras</p>
-            <Button variant="outline" size="icon" onClick={onRefreshclick}>
+            <p className="text-black text-sm mr-2 opacity-70">Select one camera</p>
+            <Button variant="outline" size="icon" onClick={onRefreshClick}>
                 {/* <!-- refresh button --> */}
                 <svg 
                 className="fill-body hover:fill-primary" width="20" 
@@ -170,7 +163,11 @@ export default function CameraSelect<TData, TValue>({
                     className="bg-blue-50 !border border-zinc-600 focus:border-2 border-zinc-950 data-[state=selected]:!bg-blue-200 data-[state=selected]:!border-2"
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
-                    onClick = {()=> row.toggleSelected()}
+                    /* TODO: Fix row election bug */
+                    /* onClick = {(event)=>{ console.log("selectRow",row,'isSelected',row.getIsSelected(),event)
+                    row.toggleSelected()
+                    event.stopPropogation()
+                  }} */
                     >
                     {row.getVisibleCells().map((cell) => (
                         <TableCell key={cell.id}>

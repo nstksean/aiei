@@ -233,3 +233,8 @@ span.flatpickr-weekday,
 ::-webkit-scrollbar-thumb:hover {
   background-color: #a8bbbf;
 }
+
+.flatpickr-disabled {
+  cursor: not-allowed !important;
+  color: rgba(57,57,57,0.1) !important;
+}
