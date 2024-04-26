@@ -11,7 +11,7 @@ const Header = (props: {
 }) => {
   return (
     <header className="sticky top-0 z-999 flex w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none">
-      <div className="flex flex-row-reverse flex-grow items-center justify-between px-4 py-4 shadow-2 md:px-6 2xl:px-11">
+      <div className="flex flex-row flex-grow items-center justify-between px-4 py-4 shadow-2 md:px-6 2xl:px-11">
         <div className="flex items-center gap-2 sm:gap-4 lg:hidden">
           {/* <!-- Hamburger Toggle BTN --> */}
           <button
@@ -25,7 +25,7 @@ const Header = (props: {
             <span className="relative block h-5.5 w-5.5 cursor-pointer">
               <span className="du-block absolute right-0 h-full w-full">
                 <span
-                  className={`relative left-0 top-0 my-1 block h-0.5 w-0 rounded-sm bg-black delay-[0] duration-200 ease-in-out dark:bg-white ${
+                  className={`relative left-0 top-0 my-1 block h-0.5 w-0 rounded-sm bg-black delay-&lsqb;0&rsqb to silence telay-&lsqb;0&rsqb duration-200 ease-in-out dark:bg-white ${
                     !props.sidebarOpen && '!w-full delay-300'
                   }`}
                 ></span>
@@ -58,7 +58,7 @@ const Header = (props: {
 
           <Link className="block flex-shrink-0 lg:hidden" to="/">
             {/* <img src={LogoIcon} alt="Logo" /> */}
-            <h2 className="text-black">{`AiEi Platform`}</h2>
+            <h2 className="text-black">{`AiEi System`}</h2>
           </Link>
         </div>
 

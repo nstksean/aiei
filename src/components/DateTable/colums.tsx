@@ -1,17 +1,23 @@
+import * as React from 'react'
 import { ColumnDef } from "@tanstack/react-table"
 import { MoreHorizontal, ArrowUpDown, Trash2, Pencil } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "../ui/checkbox"
 
-export type Payment = {
-  id: string
-  amount: number
-  status: "pending" | "processing" | "success" | "failed"
-  email: string
+export type InterenceJob = {
+  camera: array
+  event: array
+  event_type_config: object
+  id: number
+  inference_config: object
+  name: string
+  scenario: object
+  schedule_config: object
+  user_note: string
 }
 
-export const columns: ColumnDef<Payment>[] = [
+export const columns: ColumnDef<InterenceJob>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -31,15 +37,17 @@ export const columns: ColumnDef<Payment>[] = [
         aria-label="Select row"
       />
     ),
+    maxSize:48,
     enableSorting: false,
     enableHiding: false,
   },
   {
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: "id",
+    header: "ID",
+    maxSize:48,
   },
   {
-    accessorKey: "email",
+    accessorKey: "name",
     header: ({ column }) => {
       return (
         <Button
@@ -47,22 +55,30 @@ export const columns: ColumnDef<Payment>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="text-sm font-medium uppercase xsm:text-base"
         >
-          Email
+          Name
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       )
     },  },
   {
-    accessorKey: "amount",
-    header: () => <div className="text-right">Amount</div>,
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("amount"))
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount)
-      return <div className="text-right font-medium">{formatted}</div>
+    accessorKey: "user_note",
+    header: () => <div className="">User Note</div>,
+    maxSize:304,
+  },
+  {
+    accessorKey:"event",
+    header: () => <div className="">Notification</div>,
+    cell: ({row}) => {
+      const eventData = row.original
+      return (
+        <React.Fragment>
+                <div className="">
+                  {eventData?.event.length}
+                </div>
+        </React.Fragment>
+      )
     },
+    maxSize:160,
   },
   {
     id: "actions",
@@ -70,14 +86,14 @@ export const columns: ColumnDef<Payment>[] = [
       const payment = row.original
 
       return (
-        <>
-          <Button>
+        <div className="flex gap-4">
+          <Button variant="outline" size="icon">
             <Trash2 className="h-4 w-4"/>
           </Button>
-          <Button >
+          <Button variant="outline" size="icon">
             <Pencil className="h-4 w-4"/>
           </Button>
-      </>
+      </div>
       )
     },
   },
