@@ -43,10 +43,6 @@ export default function ScenarioCard({
   function onNextClick(){
     ()=>handleNextClick()
   }
-  
-  function onLogClick(){
-    console.log('log',newTaskConfig,newTaskConfigStore)
-  }
 
   function updateStore(newTaskConfig){
     if (newTaskConfig.scenario_id === null){

@@ -83,13 +83,20 @@ export default function CameraSelect<TData, TValue>({
     columns,
     data,
     fetchCameraData,
+    choseCamera
 }: DataTableProps<TData, TValue>) {
     const [rowSelection, setRowSelection] = React.useState({})
-    const [chosenRow,setChosenRow]= React.useState({})
 
     React.useEffect(() => {
         fetchCameraData()
     }, []);
+
+    React.useEffect(() => {
+      let selectedDataIndex = Object.keys(rowSelection)[0]
+      let selectedData ={} 
+      if(data){selectedData = data[selectedDataIndex]}
+      choseCamera(selectedData)
+    }, [rowSelection]);
     
     const table = useReactTable({
     data,

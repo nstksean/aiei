@@ -6,10 +6,13 @@ import { Link } from 'react-router-dom';
 import useSWR from "swr"
 import Flatpickr from "react-flatpickr";
 import { format } from 'date-fns';
-import { z,ZodType } from "zod";
+import { any, z,ZodType } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod'
-import { NavLink } from "react-router-dom";
+import { NavLink,useNavigate } from "react-router-dom";
+import useNewTask from "../stores/useNewTask"
+import axios from "axios";
+
 
 import CameraSelect,{ cameraColumn, Cameras} from '../components/Camera/CameraSelect';
 import TailBreadcrumbSecondary from '../components/Breadcrumbs/BreadcrumbSecondary';
@@ -31,7 +34,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from '../components/ui/textarea';
 import { AspectRatio } from '../components/ui/aspect-ratio';
 
-type NewTaskForm = {
+/* type NewTaskForm = {
   taskName:string;
   location:string;
   userNote:string
@@ -39,7 +42,9 @@ type NewTaskForm = {
   // cameraCheckbox:array;
   // scenarioCheckbox:array;
   // scenarioEventCheckbox:array;
-}
+} */
+
+
 
 const NewTask = () => {
   /* state for task info */
@@ -57,12 +62,16 @@ const NewTask = () => {
   const weekDaysAndAll = ['All','Sun.','Mon.','Tue.','Wed.','Thu.','Fri.','Sat.']
 
   const [cameraDatas, setCameraDatas] = React.useState<Camera>([]);
+  const [chosenCamera,setChosenCamera]= React.useState({})
+
+  const [taskDetail, setTaskDetail] = useState({})
+  const [allowConfirm, setAllowConfirm] = useState(false)
 
   const {data : camera} = useSWR('camera')
   
   React.useEffect(() => {
       setCameraDatas(camera);
-  }, [cameraDatas]);  
+  }, [cameraDatas]); 
 
   function onReset(e){
     e.preventDefault()
@@ -80,7 +89,7 @@ const NewTask = () => {
     let timeRange = ''
     let timeDisable = ''
     let timeConcat = scheduleFrom.concat(scheduleTo)
-    console.log('timeFrom',timeFrom,'timeTo','timeRange',timeRange,'timeConcat',timeConcat)
+    // console.log('timeFrom',timeFrom,'timeTo','timeRange',timeRange,'timeConcat',timeConcat)
     if (timeFrom.length>0 && timeTo.length>0){
       timeRange = [scheduleFrom[0],scheduleTo[0]]
       timeDisable = {from:scheduleFrom[0],to:scheduleTo[0]}
@@ -129,14 +138,20 @@ const NewTask = () => {
     setBookDays(dayAfterFilter)
   }
 
-  const validationSchema: ZodType<Form> = z.object({
+  const {configTaskDetail } = useNewTask();
+  const newTaskConfigStore = useNewTask();
+
+  React.useEffect(() => {
+    console.log(newTaskConfigStore)
+  }, [newTaskConfigStore.newTaskConfig]); 
+
+  
+
+
+ /*  const validationSchema: ZodType<Form> = z.object({
     taskName:z.string().min(1),
     location:z.string().min(1),
     userNote:z.string().min(1).max(255),
-    schedule:z.string().array().nonempty(),
-    cameraCheckbox:z.string().array().nonempty(),
-    scenarioCheckbox:z.string().array().nonempty(),
-    scenarioEventCheckbox:z.string().array().nonempty(),
   })
 
   const {
@@ -145,16 +160,104 @@ const NewTask = () => {
     formState : { errors },
   } =useForm<From>({
     resolver: zodResolver(validationSchema),
-  });
+  }); */
 
-  const onSubmit = (values:From)=>{
-    console.log('onSubmit：',values)
+  const [taskName,setTaskName] = useState<string>('')
+  const [location,setLocation] = useState<string>('')
+  const [userNote,setUserNote] = useState<string>('')
+
+
+
+  
+  // console.log('logErrors',errors) 
+  function gatherTaskDetail(e){
+    e.preventDefault()
+    let storeData = newTaskConfigStore.newTaskConfig
+    const newTaskDetailConfig = {
+      scenario_id :storeData.scenario_id,
+      event_type_config:storeData.event_type_config,
+      name: taskName,
+      user_note: userNote,
+      schedule_config: scheduleDates,
+      inference_config:{
+        location:location,
+        camera: chosenCamera.id
+      }
+    }
+    console.log('gd',newTaskDetailConfig,newTaskConfigStore.newTaskConfig)
+    setTaskDetail(newTaskDetailConfig)
+    return updateStore(newTaskDetailConfig)
+  };
+
+  function updateStore(taskDetail){
+    console.log('updateStore',taskDetail)
+    if (taskDetail.name === null){
+      console.log('no data')
+      return checkTaskDetail(taskDetail)
+    }else if (taskDetail.name !== null){
+      newTaskConfigStore.configTaskDetail(taskDetail)
+      console.log('set data')
+      return checkTaskDetail(taskDetail)
+    }
   }
 
+  function checkTaskDetail(taskDetail){
+    if (taskDetail.scenario_id !== null && taskDetail.name.length >0 ){
+      setAllowConfirm(true)
+      console.log('check_PASS')
+    }else{
+      setAllowConfirm(false) 
+      console.log('check_FAIL')
+    }
+  }
+  function onCancelClick(){
+  }
+
+  /* button component */
+  function CancelButton(
+    handleCancelClick
+  ){
+    const navigate = useNavigate()
+    function handleCancelClick() {
+      navigate("/Tables")
+    }
+    return(
+      <Button 
+      onClick={handleCancelClick}
+      className={"m-4 bg-primary"}
+      >
+        Back to Tables
+      </Button>
+    );
+  }
+  /* button component */
+  const onSubmit = (e) =>{
+    const postInferenceJobUrl = 'http://10.10.80.228:8043/api/inference_job';
+    const taskBody = newTaskConfigStore.newTaskConfig
+    const taskBodyJson = JSON.stringify(taskBody)
+    axios.post(postInferenceJobUrl,taskBodyJson , { 
+      headers: {
+        'Content-Type': 'application/json' 
+      }
+    })
+    .then(function (response) {
+      console.log(response.status)
+      if(Number(response.status) == 201){
+        alert("success")
+      }else{
+        console.log('fail',response.status)
+
+      }
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+    e.preventDefault() 
+  }
   return (
     <NoSideBarLayout>
       <TailBreadcrumbSecondary pageName='New Task' fontPageName='Select Scenarions'/>
-      <form action='#' onSubmit={handleSubmit(onSubmit)}>
+      <form /* action='/Tables' onSubmit={onSubmit} */>
       <div className="grid grid-cols-1 gap-5 mb-5 sm:grid-cols-2">
         <div className="flex flex-col gap-5">
           {/* <!-- main task Form --> */}
@@ -170,7 +273,8 @@ const NewTask = () => {
                       placeholder="Enter your first name"
                       className="w-full rounded border-[1.5px] border-stroke py-3 px-5 text-black outline-none transition bg-white focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       id='taskName'
-                      {...register('taskName')}
+                      onInput={(e)=>(setTaskName(e.target.value))}
+                      // {...register('taskName')}
                     />
                   </div>
                   <div className="w-full xl:w-1/2">
@@ -182,7 +286,8 @@ const NewTask = () => {
                       placeholder="Enter task location"
                       className="w-full rounded border-[1.5px] border-stroke bg-white py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       id='location'
-                      {...register('location')}
+                      onInput={(e)=>(setLocation(e.target.value))}
+                      // {...register('location')}
                     />
                   </div>
 
@@ -195,7 +300,8 @@ const NewTask = () => {
                     placeholder="Type your user note here." 
                     id="userNote" 
                     maxLength={255}
-                    {...register('userNote')}
+                    onInput={(e)=>(setUserNote(e.target.value))}
+                    // {...register('userNote')}
                     />
                   </div>
                   
@@ -208,7 +314,8 @@ const NewTask = () => {
             <CameraSelect 
             columns={cameraColumn} 
             data={cameraDatas} 
-            fetchCameraData={fetchCameraData}/>
+            fetchCameraData={fetchCameraData}
+            choseCamera = {setChosenCamera}/>
           </div> 
         </div>
 
@@ -357,17 +464,24 @@ const NewTask = () => {
               </AspectRatio>
             </div>
           </div>
-            <NavLink 
-            type={"submit"} 
-            to='/tables'
-            >
-            <Button className="w-full my-4 bg-primary">Confirm</Button>
-            </NavLink>
-
-          
+            <div className="flex justify-between">
+              <Button 
+              className="m-4 bg-primary"
+              onClick={(e)=>gatherTaskDetail(e)}
+              type="button"
+              >Config</Button>
+              <Button 
+              className="m-4 bg-primary"
+              disabled={!allowConfirm}
+              onClick={(e)=>onSubmit(e)}
+              type="submit"
+              >Submit</Button>
+              <CancelButton handleCancelClick={onCancelClick}></CancelButton>
+            </div>
         </div>
       </div>
       </form>
+      
     </NoSideBarLayout>
   );
 };

@@ -37,12 +37,14 @@ export const columns: ColumnDef<InterenceJob>[] = [
         aria-label="Select row"
       />
     ),
+    maxSize:48,
     enableSorting: false,
     enableHiding: false,
   },
   {
     accessorKey: "id",
     header: "ID",
+    maxSize:48,
   },
   {
     accessorKey: "name",
@@ -61,6 +63,7 @@ export const columns: ColumnDef<InterenceJob>[] = [
   {
     accessorKey: "user_note",
     header: () => <div className="">User Note</div>,
+    maxSize:304,
   },
   {
     accessorKey:"event",
@@ -74,7 +77,8 @@ export const columns: ColumnDef<InterenceJob>[] = [
                 </div>
         </React.Fragment>
       )
-    }
+    },
+    maxSize:160,
   },
   {
     id: "actions",

@@ -8,11 +8,26 @@ const scenarioObj =(taskContent)=> {
   }
 }
 
-
 const configScenario = (newTask,taskContent) =>{
   const config = scenarioObj(taskContent)
   console.log('configScenario',config)
   return config
+}
+
+const taskDetailObj = (taskContent) => {
+  console.log('taskDetailObj',taskContent)
+  return {
+    name: taskContent.name,
+    user_note: taskContent.user_note,
+    schedule_config: taskContent.schedule_config,
+    inference_config: taskContent.inference_config
+  }
+}
+
+const configTaskDetail = (newTask,taskContent)=> {
+  const detail = taskDetailObj(taskContent)
+  console.log('configTaskDetail',detail)
+  return detail
 }
 
 const useNewTask = create((set)=>({
@@ -22,6 +37,18 @@ const useNewTask = create((set)=>({
       ...state,
       newTaskConfig : configScenario(state.newTaskConfig,taskContent)
     }));
+  },
+  configTaskDetail(taskContent){
+    set((state)=> ({
+      ...state,
+      newTaskConfig : {
+        ...state.newTaskConfig,  // 保留先前的 newTaskConfig 值
+        ...configTaskDetail(state.newTaskConfig, taskContent)  // 更新 newTaskConfig
+      }
+    }));
+  },
+  resetNewTaskConfig(){ 
+    set(()=>({ newTaskConfig:{} }));
   },
 }));
 

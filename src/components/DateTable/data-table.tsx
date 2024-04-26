@@ -42,6 +42,11 @@ export function DataTable<TData, TValue>({
     const table = useReactTable({
     data,
     columns,
+    defaultColumn: {
+        size: 200, //starting column size
+        minSize: 50, //enforced during column resizing
+        maxSize: 300, //enforced during column resizing
+    },
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
@@ -125,8 +130,12 @@ export function DataTable<TData, TValue>({
               {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => {
+                    console.log(headerGroup.id,header.getSize())
                   return (
-                      <TableHead key={header.id} className="text-sm font-medium uppercase xsm:text-base">
+                      <TableHead 
+                      key={header.id} 
+                      className="text-sm font-medium uppercase xsm:text-base"
+                      style={{ maxWidth: `${header.getSize()}px` }}>
                       {header.isPlaceholder
                           ? null
                           : flexRender(
@@ -147,7 +156,7 @@ export function DataTable<TData, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                   >
                   {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell key={cell.id} >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                   ))}
