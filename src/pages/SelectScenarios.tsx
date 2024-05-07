@@ -1,4 +1,5 @@
 import DefaultLayout from "../layout/DefaultLayout";
+import NoSideBarLayout from "../layout/NoSideBarLayout";
 import ScenariosSelect from "../components/Scenarios/ScenariosSelect";
 import ScenarioCard from "../components/Scenarios/ScenarioCard";
 import { scenariosColumn,Scenarios } from "../components/Scenarios/ScenariosSelect";
@@ -19,7 +20,7 @@ export default function SelectScenarios(){
   
 
   return(
-  <DefaultLayout>
+  <NoSideBarLayout>
     <TailBreadcrumb pageName="Select Scenario"/>
     <div className="gap-5 p-0 h-[81vh] w-svh grid grid-cols-1 sm:grid-cols-2">
         <ScenariosSelect 
@@ -32,6 +33,6 @@ export default function SelectScenarios(){
         chosenRow = {chosenRow}
         />
     </div>
-  </DefaultLayout>
+  </NoSideBarLayout>
   );
 }

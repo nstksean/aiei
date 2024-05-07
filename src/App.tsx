@@ -17,6 +17,9 @@ import SelectScenarios from './pages/SelectScenarios';
 import DataFetch from './pages/dataFetch';
 import NewTask from'./pages/NewTask'
 import TaskInfo from './pages/TaskInfo'
+import StreamVideo from './pages/StreamVideo';
+import EditTask from './pages/EditTask';
+import Region from './pages/Region';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -117,16 +120,7 @@ function App() {
           }
         />
         <Route
-          path='*'
-          element={
-            <>
-            <PageTitle title="Not Found"/>
-            <NoFound/>
-            </>
-          }
-        />
-        <Route
-          path='/SelectScenarios'
+          path='/selectscenarios'
           element={
             <>
             <PageTitle title="Select Scenarios"/>
@@ -135,7 +129,7 @@ function App() {
           }
         />
         <Route
-          path='/DataFetch'
+          path='/datafetch'
           element={
             <>
             <PageTitle title="DataFetch"/>
@@ -144,20 +138,62 @@ function App() {
           }
         />
         <Route
-          path='/NewTask'
+          path='/newtask'
           element={
             <>
             <PageTitle title="NewTask"/>
             <NewTask/>
             </>
-          }
-        />
+        }>
+        </Route>
+        <Route 
+            path='/editTask/:taskId' 
+            element = {
+              <>
+              <PageTitle title="EditTask"/>
+              <EditTask/>
+              </>
+            }>
+          </Route>
         <Route
-          path='/TaskInfo'
+          path='/tables/editTask/:taskId' 
+          element = {
+            <>
+            <PageTitle title="EditTask"/>
+            <EditTask/>
+            </>
+          }>
+        </Route>
+        <Route
+          path='/taskinfo/:taskId' 
           element={
             <>
             <PageTitle title="TaskInfo"/>
             <TaskInfo/>
+            </>}
+        />
+        <Route
+          path='/tables/taskinfo/:taskId' 
+          element={
+            <>
+            <PageTitle title="TaskInfo"/>
+            <TaskInfo/>
+            </>}
+        />
+        <Route
+          path='/region' 
+          element={
+            <>
+            <PageTitle title="TaskInfo"/>
+            <Region/>
+            </>}
+        />
+        <Route
+          path='*'
+          element={
+            <>
+            <PageTitle title="Not Found"/>
+            <NoFound/>
             </>
           }
         />

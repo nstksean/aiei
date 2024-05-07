@@ -32,3 +32,20 @@ export function ApiProvider({ children, options }) {
       console.error(`Could not get products: ${error}`);
     }
   }
+
+  export async function callDeleteTask(taskId,refreshFn){
+    const apiEndpoint = 'inference_job/'
+    const deleteTaskUrl = `${baseUrl}`+'api/'+`${apiEndpoint}`+taskId;
+
+    axios.delete(deleteTaskUrl , { 
+      headers: {
+        'Content-Type': 'application/json' 
+      }
+    })
+    .then(function (response) {
+      refreshFn()
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+  }

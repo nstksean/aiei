@@ -29,39 +29,42 @@ import { RotateCw } from 'lucide-react';
 
 
 interface DataTableProps<TData, TValue> {
-    columns: ColumnDef<TData, TValue>[]
-    data: TData[]
+  columns: ColumnDef<TData, TValue>[]
+data: TData[]
 }
 
 export type EventListData = {
-    id: string
-    caption: string
-    description: string
+  id: string
+  caption: string
+  description: string
 }
 /* table column config */
 export const eventListColumn: ColumnDef<Scenarios>[] = [
-    {
-			accessorKey: "caption",
-			header: "caption",
-			cell:({row}) => (
-				<React.Fragment>
-					<div className="">
-						<div className="font-medium text-black">{row.original.caption}</div>
-						<div className="font-medium text-sm">{row.original.description}</div>
-					</div>
-				</React.Fragment>
-			)
-    }
+  {
+    accessorKey: "event_type",
+    header: "event_type",
+    cell:({row}) => {
+      const rawData = row.original.event_type
+      return	(<React.Fragment>
+        <div className="">
+          <div className="font-medium text-lg text-zinc-950 mb-2">{rawData.name}</div>
+          <div className="font-medium text-sm text-zinc-600">{rawData.description}</div>
+        </div>
+      </React.Fragment>)
+    },
+    filterFn:'filterEventName'
+    
+  }
 ]
 
 export default function EventList<TData, TValue>({
     columns,
     data,
+    refresh
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-
-
+    
     const table = useReactTable({
     data,
     columns,
@@ -69,6 +72,12 @@ export default function EventList<TData, TValue>({
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    filterFns:{
+        filterEventName:(row,columnId,filterValue)=>{
+            const target = row.original.event_type.name
+            return String(target).toLowerCase().includes(String(filterValue).toLowerCase())
+        }
+    },
     state: {
         sorting,
         columnFilters,
@@ -85,17 +94,16 @@ export default function EventList<TData, TValue>({
         <div className="flex items-center py-2 justify-between h-14 text-clip">
             <div className="inline-flex items-center w-1/2">
                 <Input
-                placeholder="Filter Scenarios..."
-                value={(table.getColumn("caption")?.getFilterValue() as string) ?? ""}
+                placeholder="Filter Event Name..."
+                value={(table.getColumn("event_type")?.getFilterValue() as string) ?? ""}
                 onChange={(event) =>{
-                    setRowSelection({})
-                    table.getColumn("caption")?.setFilterValue(event.target.value)
+                    table.getColumn("event_type")?.setFilterValue(event.target.value)
                 }
                 }
                 className="border-2 focus:border-blue-500 min-w-45"
                 />
             </div>
-            <Button variant="outline" size="icon" onClick={console.log('clickRefresh')}>
+            <Button variant="outline" size="icon" onClick={refresh}>
                 {/* <!-- refresh button --> */}
                 <svg 
                 className="fill-body hover:fill-primary" width="20" 
@@ -134,10 +142,8 @@ export default function EventList<TData, TValue>({
 									{table.getRowModel().rows?.length ? (
 									table.getRowModel().rows.map((row) => (
 											<TableRow
-											className="bg-blue-50 !border border-zinc-600 focus:border-2 border-zinc-950 data-[state=selected]:!bg-blue-200 data-[state=selected]:!border-2"
+											className="bg-green-100 rounded-xl overflow-hidden border-zinc-600 focus:border-2 border-zinc-950 data-[state=selected]:!bg-emerald-200 data-[state=selected]:!border-2"
 											key={row.id}
-											data-state={row.getIsSelected() && "selected"}
-											onClick = {()=> row.toggleSelected()}
 											>
 											{row.getVisibleCells().map((cell) => (
 													<TableCell key={cell.id}>

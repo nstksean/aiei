@@ -2,23 +2,18 @@ import * as React from "react"
 import {useState,useEffect,useRef} from 'react';
 
 import { Ghost, Home, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import useSWR from "swr"
 import Flatpickr from "react-flatpickr";
 import { format } from 'date-fns';
-import { any, z,ZodType } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from '@hookform/resolvers/zod'
 import { NavLink,useNavigate } from "react-router-dom";
-import useNewTask from "../stores/useNewTask"
+import useEditTask from "../stores/useEditTask"
 import axios from "axios";
-
 
 import CameraSelect,{ cameraColumn, Cameras} from '../components/Camera/CameraSelect';
 import TailBreadcrumbSecondary from '../components/Breadcrumbs/BreadcrumbSecondary';
 import SelectGroupLocation from '../components/Forms/SelectGroup/SelectGroupLocation';
 import NoSideBarLayout from '../layout/NoSideBarLayout';
-
 
 
 import {
@@ -35,21 +30,25 @@ import { Textarea } from '../components/ui/textarea';
 import { AspectRatio } from '../components/ui/aspect-ratio';
 import StreamVideo from "./StreamVideo";
 
-/* type NewTaskForm = {
-  taskName:string;
-  location:string;
-  userNote:string
-  // schedule:array;
-  // cameraCheckbox:array;
-  // scenarioCheckbox:array;
-  // scenarioEventCheckbox:array;
-} */
 
-
-
-const NewTask = () => {
+const EditTask = () => {
   /* state for task info */
-  const [isSchedule,setIsSchedule] = useState(false)
+  const urlParams  = useParams()
+  const id = urlParams.taskId
+  const {data:taskInfoById,error,isLoading} = useSWR('/inference_job/'+`${id}`)
+
+  useEffect(() => {
+    console.log(taskInfoById)
+    if(!isLoading){
+      const locationCheck = taskInfoById.inference_config.location || ''
+      const scheduleCheck = taskInfoById.schedule_config || []
+      setTaskName(taskInfoById.name)
+      setLocation(locationCheck)
+      setUserNote(taskInfoById.user_note)
+      setScheduleDates(scheduleCheck)
+    }
+  }, [taskInfoById])
+  
 
   const [scheduleDates, setScheduleDates] = React.useState<Date>([])
   const [scheduleFrom, setScheduleFrom] = React.useState<Date>([])
@@ -60,13 +59,16 @@ const NewTask = () => {
 
   const [bookDays, setBookDays] = React.useState<String>([])
 
-  const weekDaysAndAll = ['All','Sun.','Mon.','Tue.','Wed.','Thu.','Fri.','Sat.']
-
   const [cameraDatas, setCameraDatas] = React.useState<Camera>([]);
   const [chosenCamera,setChosenCamera]= React.useState({})
 
   const [taskDetail, setTaskDetail] = useState({})
+
   const [allowConfirm, setAllowConfirm] = useState(false)
+
+  const [taskName,setTaskName] = useState<string>('')
+  const [location,setLocation] = useState<string>('')
+  const [userNote,setUserNote] = useState<string>('')
 
   const {data : camera} = useSWR('camera')
   
@@ -138,83 +140,59 @@ const NewTask = () => {
     setScheduleDates(datesAfterFilter)
     setBookDays(dayAfterFilter)
   }
-
-  const {configTaskDetail } = useNewTask();
-  const newTaskConfigStore = useNewTask();
-
-  React.useEffect(() => {
-    console.log(newTaskConfigStore)
-  }, [newTaskConfigStore.newTaskConfig]); 
-
   
-
-
- /*  const validationSchema: ZodType<Form> = z.object({
-    taskName:z.string().min(1),
-    location:z.string().min(1),
-    userNote:z.string().min(1).max(255),
-  })
-
-  const {
-    register,
-    handleSubmit,
-    formState : { errors },
-  } =useForm<From>({
-    resolver: zodResolver(validationSchema),
-  }); */
-
-  const [taskName,setTaskName] = useState<string>('')
-  const [location,setLocation] = useState<string>('')
-  const [userNote,setUserNote] = useState<string>('')
+  const editStore = useEditTask()
 
 
   function navToTable(){
     navigator('/')
     return navigator('/')
   }
-  
-  // console.log('logErrors',errors) 
+  /*put schema {
+    "name": "string",
+    "user_note": "string",
+    "schedule_config": "string",
+    "event_type_config": "string",
+    "inference_config": "string"
+  } */
   function gatherTaskDetail(e){
     e.preventDefault()
-    let storeData = newTaskConfigStore.newTaskConfig
-    const newTaskDetailConfig = {
-      scenario_id :storeData.scenario_id,
-      event_type_config:storeData.event_type_config,
+    const taskAfterEdit = {
       name: taskName,
       user_note: userNote,
       schedule_config: scheduleDates,
+      event_type_config:[{
+          "description": "this is first eventtype",
+          "id": 1,
+          "name": "First EventType"
+        }],
       inference_config:{
         location:location,
-        camera: chosenCamera.id
+        camera: '1'
       }
     }
-    console.log('gd',newTaskDetailConfig,newTaskConfigStore.newTaskConfig)
-    setTaskDetail(newTaskDetailConfig)
-    return updateStore(newTaskDetailConfig)
+    const taskAfterEditJson = JSON.stringify(taskAfterEdit)
+    console.log('gd',editStore,'tAEJson',taskAfterEditJson)
+    return updateStoreCheckSubmit(taskAfterEdit)
   };
 
-  function updateStore(taskDetail){
-    console.log('updateStore',taskDetail)
-    if (taskDetail.name === null){
-      console.log('no data')
-      return checkTaskDetail(taskDetail)
-    }else if (taskDetail.name !== null){
-      newTaskConfigStore.configTaskDetail(taskDetail)
-      console.log('set data')
-      return checkTaskDetail(taskDetail)
-    }
-  }
-
-  function checkTaskDetail(taskDetail){
-    if (taskDetail.scenario_id !== null && taskDetail.name.length >0 ){
+  function updateStoreCheckSubmit(taskDetail){
+    if (String(taskDetail.name) === '' 
+    || String(taskDetail.user_note) === '' 
+    || String(taskDetail.schedule_config) === '' 
+    || String(taskDetail.inference_config.location) === ''
+    || String(chosenCamera) === '' ){
+      console.log('wrong data')
+      setAllowConfirm(false)
+    }else if (String(taskDetail.name).length > 0 
+    || String(taskDetail.user_note).length > 0 
+    || String(taskDetail.schedule_config).length > 0
+    || String(taskDetail.inference_config.location).length > 0 
+    || String(chosenCamera).length >0 ){
+      editStore.editTaskDetail(taskDetail)
       setAllowConfirm(true)
-      console.log('check_PASS')
-    }else{
-      setAllowConfirm(false) 
-      console.log('check_FAIL')
+      console.log('set data')
     }
-  }
-  function onCancelClick(){
   }
 
   /* button component */
@@ -236,10 +214,13 @@ const NewTask = () => {
   }
   /* button component */
   const onSubmit = (e) =>{
-    const postInferenceJobUrl = 'http://10.10.80.228:8043/api/inference_job';
-    const taskBody = newTaskConfigStore.newTaskConfig
+     
+    const InferenceJobUrl = 'http://10.10.80.228:8043/api/inference_job/';
+    const InferenceWithIdUrl = InferenceJobUrl+`${id}`
+    const taskBody = editStore.editTaskConfig
     const taskBodyJson = JSON.stringify(taskBody)
-    axios.post(postInferenceJobUrl,taskBodyJson , { 
+    console.log(taskBodyJson,id)
+    axios.put(InferenceWithIdUrl,taskBodyJson , { 
       headers: {
         'Content-Type': 'application/json' 
       }
@@ -251,12 +232,13 @@ const NewTask = () => {
     .catch(function (error) {
       console.log(error);
     });
-    e.preventDefault() 
+    e.preventDefault()
   }
+
   return (
     <NoSideBarLayout>
-      <TailBreadcrumbSecondary pageName='New Task' fontPageName='Select Scenarios'/>
-      <form  action='/' /*onSubmit={onSubmit} */>
+      <TailBreadcrumbSecondary pageName='Edit Task' fontPageName='Select Scenarios'/>
+      <form action='/' /* onSubmit={onSubmit} */>
       <div className="grid grid-cols-1 gap-5 mb-5 sm:grid-cols-2">
         <div className="flex flex-col gap-5">
           {/* <!-- main task Form --> */}
@@ -272,6 +254,7 @@ const NewTask = () => {
                       placeholder="Enter your first name"
                       className="w-full rounded border-[1.5px] border-stroke py-3 px-5 text-black outline-none transition bg-white focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       id='taskName'
+                      value={taskName}
                       onInput={(e)=>(setTaskName(e.target.value))}
                     />
                   </div>
@@ -284,6 +267,7 @@ const NewTask = () => {
                       placeholder="Enter task location"
                       className="w-full rounded border-[1.5px] border-stroke bg-white py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       id='location'
+                      value={location}
                       onInput={(e)=>(setLocation(e.target.value))}
                     />
                   </div>
@@ -297,6 +281,7 @@ const NewTask = () => {
                     placeholder="Type your user note here." 
                     id="userNote" 
                     maxLength={255}
+                    value={userNote}
                     onInput={(e)=>(setUserNote(e.target.value))}
                     />
                   </div>
@@ -342,7 +327,7 @@ const NewTask = () => {
                   disable: bookDays,
                   onChange: function(selectedDates, dateStr, instance) {
                     setScheduleFrom(selectedDates);
-                    instance.close()
+                    instance.close();
                   },
                   onOpen:function(){
                     scheduleFrom? setScheduleFrom('') : false
@@ -370,8 +355,8 @@ const NewTask = () => {
                   mode: "single",
                   disable: bookDays,
                   onChange: function(selectedDates, dateStr, instance) {
-                    setScheduleTo(selectedDates)
-                    instance.close()
+                    setScheduleTo(selectedDates);
+                    instance.close();
                   },
                   onOpen:function(){
                     scheduleTo? setScheduleTo('') : false
@@ -382,14 +367,17 @@ const NewTask = () => {
             </div>
             <div className="w-11/12 mx-auto flex">Schedules:</div>
             <ul className={'flex-col h-40 min-w-52 overflow-y-scroll w-4/5 bg-green-50 mx-auto'}>
-            {scheduleDates.map((date) => (
+            {(scheduleDates.length >0) ?
+            scheduleDates?.map((date) => (
               <li className='mt-2 w-fullf flex text-center align-middle justify-center' key={date}>
                 <p>{`${format(date[0],'yyyy/MM/dd')+'-'+format(date[1],'yyyy/MM/dd')}`}</p>
                 <Button variant='outline' size="icon" className="w-6 h-6 ml-1" onClick={()=>deleteScheduleItem(date)}>
                   <X className="p-0" />
                 </Button>
               </li>
-            ))}
+            )) :
+            'No Schedule Yet.'
+          }
             </ul>
             <div className={"flex my-2  justify-event "}>
               <Button 
@@ -403,49 +391,6 @@ const NewTask = () => {
                 onClick={(e)=>onReset(e)}
                 >reset
                 </Button>
-            </div>
-          </div>
-            
-          <div className='py-3 hidden'>
-            <label
-              htmlFor="toggle1"
-              className="flex cursor-pointer select-none items-center"
-            >
-              <div className="relative">
-                <input
-                  type="checkbox"
-                  id="toggle1"
-                  className="sr-only"
-                  onChange={() => {
-                    setIsSchedule(!isSchedule);
-                  }}
-                />
-                <div className="block h-8 w-14 rounded-full bg-meta-9 dark:bg-[#5A616B]"></div>
-                <div
-                  className={`absolute left-1 top-1 h-6 w-6 rounded-full bg-white transition ${
-                    !isSchedule && '!right-1 !translate-x-full !bg-primary dark:!bg-white'
-                  }`}
-                ></div>
-              </div>
-                  <p className='px-2'>Is task schedule？</p>
-            </label>
-            {/* time picker */}
-            <div className={'grid grid-cols-3 gap-2 my-2 ease-in-out duration-500 overflow-hidden '+`${isSchedule && 'h-0'}`}>
-              {
-                weekDaysAndAll.map((weekDay)=>(
-                  <div key={weekDay} className='inline-block'>
-                    <Checkbox id={weekDay} className='mx-1'/>
-                    <label
-                    htmlFor={weekDay}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      { weekDay}
-                    </label>
-                  </div>
-                ))
-              }
-              
-            
             </div>
           </div>
 
@@ -475,11 +420,11 @@ const NewTask = () => {
                 onClick={(e)=>onSubmit(e)}
                 type="submit"
                 >
-                  <NavLink to='/Tables'>
+                  <NavLink to='/Tables' onClick={()=>(navToTable())}>
                   Submit
                   </NavLink>
               </Button>
-              <CancelButton handleCancelClick={onCancelClick}></CancelButton>
+              <CancelButton handleCancelClick={()=>(navToTable())}></CancelButton>
             </div>
         </div>
       </div>
@@ -489,4 +434,4 @@ const NewTask = () => {
   );
 };
 
-export default NewTask;
+export default EditTask;

@@ -6,17 +6,22 @@ import { InterenceJob, columns } from '../components/DateTable/colums';
 import { useState,useEffect } from 'react';
 import useSWR from 'swr';
 import useNewTask from '../stores/useNewTask'
+import useEditTask from '../stores/useEditTask';
 
 
 const Tables = () => {
   const [tableDatas, setTableDatas] = useState<InterenceJob>([]);
   const newTaskConfigStore = useNewTask()
+  const editTaskStore = useEditTask()
   const {data : inference_job} = useSWR('inference_job')
-  // console.log(newTaskConfigStore.newTaskConfig)
+
+  
   useEffect(() => {
     newTaskConfigStore.resetNewTaskConfig()
-    console.log(newTaskConfigStore.newTaskConfig)
+    editTaskStore.resetEditTaskStore()
+    console.log(editTaskStore.editTaskConfig)
   }, []);
+
   useEffect(() => {
     setTableDatas(inference_job);
   }, []);

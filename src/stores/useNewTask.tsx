@@ -10,7 +10,7 @@ const scenarioObj =(taskContent)=> {
 
 const configScenario = (newTask,taskContent) =>{
   const config = scenarioObj(taskContent)
-  console.log('configScenario',config)
+  console.log('configScenario',config,newTask,'tc',taskContent)
   return config
 }
 
