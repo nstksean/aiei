@@ -26,14 +26,6 @@ function StreamVideo() {
     return ()=>{
     }
   }, []);
-  // useEffect(() => {
-  //   if(!reload){
-  //     location.reload();
-  //   }
-  //   return ()=>{
-  //     setReload(true)
-  //   }
-  // }, [reload])
   
   return (
         <canvas ref={canvasRef} className='w-full h-full '/>

@@ -89,7 +89,7 @@ export default function ScenarioCard({
   /* button component */
 
     return(
-      <div className="border border-stroke basis-3/5 h-full bg-slate-50 shadow-default rounded-md max-h-[740px] min-h-[360px] flex flex-col justify-between px-5 pt-2">
+      <div className="border border-stroke overflow-y-auto basis-3/5 h-full bg-slate-50 shadow-default rounded-md max-h-[740px] min-h-[360px] flex flex-col justify-between px-5 pt-2">
         {/* Scenario intro */}
         <div className="flex flex-col text-clip">
           <p className="text-xs text-blue-600 font-medium">Scenario ID：{scenarioId}</p>

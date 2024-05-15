@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useLayoutEffect } from 'react';
 
 export function useResizeObserver(...refs) {
   const [dimensions, setDimensions] = useState(
@@ -13,14 +13,15 @@ export function useResizeObserver(...refs) {
       }),
     []
   );
-
-  useEffect(() => {
+  /* useEffect to useLayoutEffect because useEffect trigger fast then useLayoutEffect and image ref show up the same time 
+    */
+  useLayoutEffect(() => {
     refs.forEach((ref) => {
       resizeObserver.observe(ref.current);
     });
 
     return () => {
-      refs.forEach((ref) => {
+      refs?.forEach((ref) => {
         resizeObserver.unobserve(ref.current);
       });
     };

@@ -5,8 +5,8 @@ import { useCallback, useMemo, useRef, useState, useEffect } from 'react';
 import useSWR from 'swr';
 import axios from 'axios';
 import bgPicture from '../../images/snapshot/0503snap.png'
-export default function CameraMasks({ camera }) {
-  
+import { useParams } from 'react-router-dom';
+export default function CameraMasks({ camera, data, isEditZone}) {
   const config = {
     "audio": {
         "enabled": false,
@@ -25,11 +25,11 @@ export default function CameraMasks({ camera }) {
     },
     "birdseye": {
         "enabled": true,
-        "height": 720,
+        "height": 1080,
         "mode": "objects",
         "quality": 8,
         "restream": false,
-        "width": 1280
+        "width": 1920
     },
     "cameras": {
         "crosswalk": {
@@ -624,10 +624,9 @@ export default function CameraMasks({ camera }) {
         "timezone": null,
         "use_experimental": false
     }
-}
+  }
   const imageRef = useRef(null);
   const [snap, setSnap] = useState(true);
-
   const cameraConfig = config.cameras[camera];
   const {
     motion: { mask: motionMask },
@@ -670,9 +669,15 @@ export default function CameraMasks({ camera }) {
   const [success, setSuccess] = useState();
   const [error, setError] = useState();
 
+  /* clean hint every switch toggle */
+  useEffect(() => {
+    setError('')
+    setSuccess('')
+  }, [zonePoints,isEditZone])
+  
+
   const handleUpdateEditable = useCallback(
     (newPoints) => {
-      console.log('mdo')
       let newSet;
       if (Array.isArray(editing.set)) {
         newSet = [...editing.set];
@@ -711,58 +716,29 @@ export default function CameraMasks({ camera }) {
   
   const handleRemoveZone = useCallback(
     (key) => {
+      console.log('remove',key,zonePoints)
       const newZonePoints = { key:[] };
       // delete newZonePoints[key];
       setZonePoints(newZonePoints);
+      setError('');
+      setSuccess('');
     },
     [zonePoints, setZonePoints]
   );
   
-  // const handleClearMask = useCallback(
-  //   (key) => {
-  //     console.log('handleClearMask')
-  //     const newZonePoints = { key:[] };
-  //     // delete newZonePoints[key];
-  //     setZonePoints(newZonePoints);
-  //   },
-  //   [zonePoints, setZonePoints]
-  // );
 
-  const handleCopyZones = useCallback(async () => {
-    const textToCopy = `  zones:
-${Object.keys(zonePoints)
-  .map(
-    (zoneName) => `    ${zoneName}:
-    region_sets: ${polylinePointsToPolyline(zonePoints[zoneName])}`
-  )
-  .join('\n')}`;
+  const handleResetZone = useCallback(
+    (key) => {
+      console.log(key,zonePoints)
+      /* handleRemoveZone()
+      setTimeout(() => {
+        handleRemoveZone()
+      }, 500); */
+    },
+    [zonePoints, setZonePoints]
+  );
 
-    if (window.navigator.clipboard && window.navigator.clipboard.writeText) {
-      // Use Clipboard API if available
-      window.navigator.clipboard.writeText(textToCopy).catch((err) => {
-        throw new Error('Failed to copy text: ', err);
-      });
-    } else {
-      // Fallback to document.execCommand('copy')
-      const textarea = document.createElement('textarea');
-      textarea.value = textToCopy;
-      document.body.appendChild(textarea);
-      textarea.select();
-
-      try {
-        const successful = document.execCommand('copy');
-        if (!successful) {
-          throw new Error('Failed to copy text');
-        }
-      } catch (err) {
-        throw new Error('Failed to copy text: ', err);
-      }
-
-      document.body.removeChild(textarea);
-    }
-  }, [zonePoints]);
-
-  const handleSaveZones = useCallback( async ()  => {
+  /* const handleSaveZones = useCallback( async ()  => {
     try { 
       const para = {
         'name':String(Math.random()),
@@ -775,7 +751,7 @@ ${Object.keys(zonePoints)
       headers: {
         'Content-Type': 'application/json' 
       }
-    });
+      });
       if (response.status === 200) {
         setSuccess(response.data);
       }
@@ -786,7 +762,55 @@ ${Object.keys(zonePoints)
         setError(error.message);
       }
     }
-  }, [camera, zonePoints]);
+  }, [camera, zonePoints]); */
+
+  const handleSaveZones = useCallback( async ()  => {
+    try { 
+      const para = {
+        "name":String(Math.random()),
+        "region_sets":{
+          "interest": [
+            [
+              0,
+              0
+            ],
+            [
+              1280,
+              0
+            ],
+            [
+              1280,
+              720
+            ],
+            [
+              0,
+              720
+            ],
+          ],
+          "fence": zonePoints[Object.keys(zonePoints)]
+        }
+      }
+      const requestBody = JSON.stringify(para);
+      const endpoint = `http://10.10.80.228:8043/api/region/${data.id}`;
+      console.log('onSave=',requestBody,'ept=',endpoint)
+
+      const response = await axios.put(endpoint, requestBody, { 
+      headers: {
+        'Content-Type': 'application/json' 
+      }
+      });
+      if (response.status === 200) {
+        setSuccess('Saved Successfully');
+        console.log(response.data);
+      }
+    } catch (error) {
+      if (error.response) {
+        setError(error.response.data.message);
+      } else {
+        setError(error.message);
+      }
+    }
+  }, [camera, zonePoints, data]);
 
 
   const handleChangeSnap = useCallback(
@@ -797,27 +821,14 @@ ${Object.keys(zonePoints)
   );
 
   return (
-    <div className="flex-col space-y-4 p-2 px-4">
+    <div className="flex-col">
 
-      {success && <div className="max-h-20 text-green-500">{success}</div>}
+      {success && <div className="p-4 max-h-20 text-green-500">{success}</div>}
       {error && <div className="p-4 overflow-scroll text-red-500 whitespace-pre-wrap">{error}</div>}
-      <div className="flex-col space-y-4">
-        <MaskValues
-          editing={editing}
-          title="Zones"
-          onCopy={handleCopyZones}
-          onSave={handleSaveZones}
-          onCreate={handleAddZone}
-          onEdit={handleEditZone}
-          onRemove={handleRemoveZone}
-          points={zonePoints}
-          yamlPrefix="zones:"
-          yamlKeyPrefix={zoneYamlKeyPrefix}
-        />
-      </div>
+      
       <div className="space-y-4">
         <div className="relative">
-          <img ref={imageRef} src={bgPicture} />
+          <img ref={imageRef} src={bgPicture} className=' rounded-md' />
           <EditableMask
             onChange={handleUpdateEditable}
             points={'subkey' in editing ? editing.set[editing.key][editing.subkey] : editing.set[editing.key]}
@@ -826,6 +837,20 @@ ${Object.keys(zonePoints)
             width={width}
             height={height}
             setError={setError}
+          />
+        </div>
+        <div className="flex-col space-y-4">
+          <MaskValues
+            editing={editing}
+            title="Zones"
+            onSave={handleSaveZones}
+            onCreate={handleAddZone}
+            onEdit={handleEditZone}
+            onRemove={handleRemoveZone}
+            onReset={handleResetZone}
+            points={zonePoints}
+            yamlPrefix="zones:"
+            yamlKeyPrefix={zoneYamlKeyPrefix}
           />
         </div>
         <div className="max-w-xs hidden">
@@ -969,7 +994,7 @@ function EditableMask({ onChange, points, scale, snap, width, height, setError }
       >
         {!scaledPoints ? null : (
           <g>
-            <polyline points={polylinePointsToPolyline(scaledPoints)} fill="rgba(244,0,0,0.5)" />
+            <polyline points={polylinePointsToPolyline(scaledPoints)} fill="rgba(0,98,65,0.3)"/>
           </g>
         )}
       </svg>
@@ -982,18 +1007,18 @@ function MaskValues({
   editing,
   title,
   onAdd,
-  onCopy,
   onSave,
   onCreate,
   onEdit,
   onRemove,
+  onReset,
   points,
   yamlPrefix,
   yamlKeyPrefix,
 }) {
   const [showButtons, setShowButtons] = useState(false);
 
-  /* const handleMousein = useCallback(() => {
+  const handleMousein = useCallback(() => {
     setShowButtons(true);
   }, [setShowButtons]);
 
@@ -1006,7 +1031,7 @@ function MaskValues({
       setShowButtons(false);
     },
     [setShowButtons]
-  ); */
+  );
 
   const handleEdit = useCallback(
     (event) => {
@@ -1033,11 +1058,11 @@ function MaskValues({
   );
 
   return (
-    <div className="overflow-hidden" /* onMouseOver={handleMousein} onMouseOut={handleMouseout} */>
+    <div className="overflow-hidden" onMouseOver={handleMousein} onMouseOut={handleMouseout}>
       <div className="flex space-x-4">
-        <Button onClick={onCopy}>Copy</Button>
         <Button onClick={onCreate}>Add</Button>
         <Button onClick={onSave}>Save</Button>
+        <Button onClick={onReset}>Reset</Button>
       </div>
       <pre className="relative overflow-auto font-mono text-gray-900 min-h-18 p-2">
         {yamlPrefix}
@@ -1114,6 +1139,7 @@ function Item({ mainkey, subkey, editing, handleEdit, points, showButtons, _hand
 }
 
 function getPolylinePoints(polyline) {
+  console.log('getPolylinePoints')
   if (!polyline) {
     return;
   }
@@ -1136,6 +1162,7 @@ function scalePolylinePoints(polylinePoints, scale) {
 }
 
 function polylinePointsToPolyline(polylinePoints) {
+
   if (!polylinePoints) {
     return;
   }
@@ -1186,7 +1213,7 @@ function PolyPoint({ boundingRef, index, x, y, onMove, onRemove }) {
   return (
     <div
       // className={`${hidden ? 'opacity-0' : ''} bg-zinc-900 rounded-full absolute z-50`}
-      className={` bg-sky-300 rounded-full absolute z-50`}
+      className={` bg-sky-700 opacity-70 rounded-full absolute z-50`}
 
       style={{
         top: `${y - PolyPointRadius}px`, 

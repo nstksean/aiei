@@ -39,8 +39,8 @@ const DropdownUser = () => {
     <div className="relative">
       <Link
         ref={trigger}
-        onClick={() => setDropdownOpen(!dropdownOpen)}
-        className="flex items-center gap-4"
+        onClick={() => setDropdownOpen(false)}
+        className="flex items-center gap-4 cursor-not-allowed"
         to="#"
       >
         <span className="hidden text-right lg:block">

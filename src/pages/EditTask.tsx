@@ -15,7 +15,6 @@ import TailBreadcrumbSecondary from '../components/Breadcrumbs/BreadcrumbSeconda
 import SelectGroupLocation from '../components/Forms/SelectGroup/SelectGroupLocation';
 import NoSideBarLayout from '../layout/NoSideBarLayout';
 
-
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -28,7 +27,6 @@ import { Button } from '../components/ui/button';
 import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from '../components/ui/textarea';
 import { AspectRatio } from '../components/ui/aspect-ratio';
-import StreamVideo from "./StreamVideo";
 
 
 const EditTask = () => {
@@ -38,24 +36,45 @@ const EditTask = () => {
   const {data:taskInfoById,error,isLoading} = useSWR('/inference_job/'+`${id}`)
 
   useEffect(() => {
-    console.log(taskInfoById)
     if(!isLoading){
-      const locationCheck = taskInfoById.inference_config.location || ''
-      const scheduleCheck = taskInfoById.schedule_config || []
+      const locationCheck = taskInfoById.inference_config.location || '';
+      const scheduleCheck = taskInfoById.schedule_config || [];
+      
       setTaskName(taskInfoById.name)
       setLocation(locationCheck)
       setUserNote(taskInfoById.user_note)
       setScheduleDates(scheduleCheck)
-    }
-  }, [taskInfoById])
-  
 
+      const formattedScheduleToDisable = scheduleCheck.map((item)=>{
+        return{
+          from:item[0],
+          to:item[1]
+        }
+      })
+      setBookDays(...bookDays,formattedScheduleToDisable)
+    }
+    return () => {
+      console.log('task2',bookDays)
+    }
+
+  }, [taskInfoById])
+
+  function viewData(){
+    let bDays = taskInfoById.schedule_config
+    let bMap = bDays.map((item)=>{
+      return{
+        from:item[0],
+        to:item[1]
+      }
+    })
+    console.log('view', scheduleDates,bDays,bMap)
+    setBookDays(...bookDays,bMap)
+  }
+  
   const [scheduleDates, setScheduleDates] = React.useState<Date>([])
   const [scheduleFrom, setScheduleFrom] = React.useState<Date>([])
   const [scheduleTo, setScheduleTo] = React.useState<Date>([])
   const [scheduleDateForVal, setScheduleDateForVal] = React.useState<Date>([])
-
-  const [disableDays,setDisableDays] = useState<Array>([])
 
   const [bookDays, setBookDays] = React.useState<String>([])
 
@@ -143,11 +162,6 @@ const EditTask = () => {
   
   const editStore = useEditTask()
 
-
-  function navToTable(){
-    navigator('/')
-    return navigator('/')
-  }
   /*put schema {
     "name": "string",
     "user_note": "string",
@@ -228,7 +242,6 @@ const EditTask = () => {
     .then(function (response) {
       console.log(response.status)
     })
-    .then(navToTable())
     .catch(function (error) {
       console.log(error);
     });
@@ -396,18 +409,7 @@ const EditTask = () => {
 
           </div>
           </div>
-          <div className="rounded-sm border border-stroke shadow-default dark:border-strokedark dark:bg-boxdark">
-            <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
-              <h3 className="font-medium text-black dark:text-white">
-                Video
-              </h3>
-            </div>
-            <div className='w-full'>
-              <AspectRatio ratio={16/9} className='bg-slate-500'>
-                <StreamVideo></StreamVideo>
-              </AspectRatio>
-            </div>
-          </div>
+          
             <div className="flex justify-between">
               <Button 
               className="m-4 bg-primary"
@@ -415,12 +417,17 @@ const EditTask = () => {
               type="button"
               >Config</Button>
               <Button 
+              className="m-4 bg-primary"
+              onClick={()=>viewData()}
+              type="button"
+              >viewData</Button>
+              <Button 
                 className="m-4 bg-primary"
                 disabled={!allowConfirm}
                 onClick={(e)=>onSubmit(e)}
                 type="submit"
                 >
-                  <NavLink to='/Tables' onClick={()=>(navToTable())}>
+                  <NavLink to={id ? `/taskinfo/${id}` : '/'}>
                   Submit
                   </NavLink>
               </Button>

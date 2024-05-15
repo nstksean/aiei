@@ -1,25 +1,21 @@
 import * as React from "react"
-import {useState,useEffect,useRef} from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import { Ghost, Home, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import useSWR from "swr"
 import Flatpickr from "react-flatpickr";
 import { format } from 'date-fns';
-import { any, z,ZodType } from "zod";
+import { any, z, ZodType } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod'
-import { NavLink,useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import useNewTask from "../stores/useNewTask"
 import axios from "axios";
-
 
 import CameraSelect,{ cameraColumn, Cameras} from '../components/Camera/CameraSelect';
 import TailBreadcrumbSecondary from '../components/Breadcrumbs/BreadcrumbSecondary';
 import SelectGroupLocation from '../components/Forms/SelectGroup/SelectGroupLocation';
 import NoSideBarLayout from '../layout/NoSideBarLayout';
-
-
 
 import {
   Breadcrumb,
@@ -32,8 +28,6 @@ import {
 import { Button } from '../components/ui/button';
 import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from '../components/ui/textarea';
-import { AspectRatio } from '../components/ui/aspect-ratio';
-import StreamVideo from "./StreamVideo";
 
 /* type NewTaskForm = {
   taskName:string;
@@ -167,11 +161,6 @@ const NewTask = () => {
   const [location,setLocation] = useState<string>('')
   const [userNote,setUserNote] = useState<string>('')
 
-
-  function navToTable(){
-    navigator('/')
-    return navigator('/')
-  }
   
   // console.log('logErrors',errors) 
   function gatherTaskDetail(e){
@@ -195,23 +184,21 @@ const NewTask = () => {
 
   function updateStore(taskDetail){
     console.log('updateStore',taskDetail)
-    if (taskDetail.name === null){
-      console.log('no data')
-      return checkTaskDetail(taskDetail)
-    }else if (taskDetail.name !== null){
+    if ( String(taskDetail.name) === '' 
+    || String(taskDetail.user_note) === '' 
+    || String(taskDetail.schedule_config) === '' 
+    || String(taskDetail.inference_config.location) === ''
+    || String(chosenCamera) === '' ){
+      setAllowConfirm(false)
+      return console.log('wrong data')
+    }else if (String(taskDetail.name).length > 0 
+    || String(taskDetail.user_note).length > 0 
+    || String(taskDetail.schedule_config).length > 0
+    || String(taskDetail.inference_config.location).length > 0 
+    || String(chosenCamera).length >0 ){
       newTaskConfigStore.configTaskDetail(taskDetail)
-      console.log('set data')
-      return checkTaskDetail(taskDetail)
-    }
-  }
-
-  function checkTaskDetail(taskDetail){
-    if (taskDetail.scenario_id !== null && taskDetail.name.length >0 ){
-      setAllowConfirm(true)
-      console.log('check_PASS')
-    }else{
-      setAllowConfirm(false) 
-      console.log('check_FAIL')
+      setAllowConfirm(true) 
+      return console.log('set data')
     }
   }
   function onCancelClick(){
@@ -234,29 +221,46 @@ const NewTask = () => {
       </Button>
     );
   }
+  const navigator = useNavigate()
+  function navToLatest(response){
+    const tId = response.data.id;
+    navigator(`/taskinfo/${tId}`);
+  }
+
   /* button component */
   const onSubmit = (e) =>{
+    e.preventDefault();
+    e.stopPropagation();
     const postInferenceJobUrl = 'http://10.10.80.228:8043/api/inference_job';
+    const postTaskWithCamera = 'http://10.10.80.228:8043/api/inference_job/latest_link/camera/1';
     const taskBody = newTaskConfigStore.newTaskConfig
     const taskBodyJson = JSON.stringify(taskBody)
+
     axios.post(postInferenceJobUrl,taskBodyJson , { 
       headers: {
         'Content-Type': 'application/json' 
       }
     })
-    .then(function (response) {
-      console.log(response.status)
+    .then(function (newTaskResponse) {
+      console.log('poT=',newTaskResponse)
+      axios.post(postTaskWithCamera)
+      .then((linkTaskResponse)=>{
+        console.log('poTWC=',linkTaskResponse)
+        navToLatest(newTaskResponse)
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
     })
-    .then(navToTable())
     .catch(function (error) {
       console.log(error);
     });
-    e.preventDefault() 
+
   }
   return (
     <NoSideBarLayout>
       <TailBreadcrumbSecondary pageName='New Task' fontPageName='Select Scenarios'/>
-      <form  action='/' /*onSubmit={onSubmit} */>
+      <form  /* action='/' */ /*onSubmit={onSubmit} */>
       <div className="grid grid-cols-1 gap-5 mb-5 sm:grid-cols-2">
         <div className="flex flex-col gap-5">
           {/* <!-- main task Form --> */}
@@ -451,18 +455,7 @@ const NewTask = () => {
 
           </div>
           </div>
-          <div className="rounded-sm border border-stroke shadow-default dark:border-strokedark dark:bg-boxdark">
-            <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
-              <h3 className="font-medium text-black dark:text-white">
-                Video
-              </h3>
-            </div>
-            <div className='w-full'>
-              <AspectRatio ratio={16/9} className='bg-slate-500'>
-                <StreamVideo></StreamVideo>
-              </AspectRatio>
-            </div>
-          </div>
+          
             <div className="flex justify-between">
               <Button 
               className="m-4 bg-primary"
@@ -475,9 +468,9 @@ const NewTask = () => {
                 onClick={(e)=>onSubmit(e)}
                 type="submit"
                 >
-                  <NavLink to='/Tables'>
+                  {/* <NavLink to='/taskinfo/latest'> */}
                   Submit
-                  </NavLink>
+                  {/* </NavLink> */}
               </Button>
               <CancelButton handleCancelClick={onCancelClick}></CancelButton>
             </div>
