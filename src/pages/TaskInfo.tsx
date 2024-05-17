@@ -194,13 +194,9 @@ const TaskInfo = ({isLatesTask})=>{
     return () => {
     }
   }, [])
-
-  const 
   
   useEffect(() => {
     setEvents(eventById);
-    return ()=>{
-    }
   }, [eventById]); 
   
   const toggleSwitch = () => {

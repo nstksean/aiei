@@ -812,7 +812,6 @@ export default function CameraMasks({ camera, data, isEditZone}) {
             onCreate={handleAddZone}
             onEdit={handleEditZone}
             onRemove={handleRemoveZone}
-            onReset={handleResetZone}
             points={zonePoints}
             yamlPrefix="zones:"
             yamlKeyPrefix={zoneYamlKeyPrefix}

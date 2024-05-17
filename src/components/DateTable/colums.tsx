@@ -70,7 +70,7 @@ export const columns: ColumnDef<InterenceJob>[] = [
     header: () => <div className="max-w-50">Date added</div>,
     cell: ({row}) => {
       const date = row?.original.create_time
-\      let formatDate = format(parseISO(date),'yyyy/MM/dd')
+      let formatDate = format(parseISO(date),'yyyy/MM/dd')
       return (
         <React.Fragment>
                 <div className="">
