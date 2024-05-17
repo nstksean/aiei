@@ -6,8 +6,6 @@ import PageTitle from './components/PageTitle';
 import SignIn from './pages/Authentication/SignIn';
 import SignUp from './pages/Authentication/SignUp';
 import Chart from './pages/Chart';
-import FormElements from './pages/Form/FormElements';
-import FormLayout from './pages/Form/FormLayout';
 import Settings from './pages/Settings';
 import Tables from './pages/Tables';
 import Alerts from './pages/UiElements/Alerts';
@@ -17,7 +15,6 @@ import SelectScenarios from './pages/SelectScenarios';
 import DataFetch from './pages/dataFetch';
 import NewTask from'./pages/NewTask'
 import TaskInfo from './pages/TaskInfo'
-import StreamVideo from './pages/StreamVideo';
 import EditTask from './pages/EditTask';
 import Region from './pages/Region';
 
@@ -44,24 +41,6 @@ function App() {
             <>
               <PageTitle title="Task | AiEi" />
               <Tables />
-            </>
-          }
-        />
-        <Route
-          path="/forms/form-elements"
-          element={
-            <>
-              <PageTitle title="Form Elements | TailAdmin - Tailwind CSS Admin Dashboard Template" />
-              <FormElements />
-            </>
-          }
-        />
-        <Route
-          path="/forms/form-layout"
-          element={
-            <>
-              <PageTitle title="Form Layout | TailAdmin - Tailwind CSS Admin Dashboard Template" />
-              <FormLayout />
             </>
           }
         />
@@ -178,6 +157,14 @@ function App() {
             <>
             <PageTitle title="TaskInfo"/>
             <TaskInfo/>
+            </>}
+        />
+        <Route
+          path='/taskinfo/latest' 
+          element={
+            <>
+            <PageTitle title="TaskInfo"/>
+            <TaskInfo isLatesTask={true}/>
             </>}
         />
         <Route

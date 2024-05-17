@@ -1,7 +1,6 @@
 import {create} from 'zustand'
 
 const scenarioObj =(taskContent)=> {
-  console.log('scenarioObj',taskContent)
   return {
   scenario_id:taskContent.scenario_id,
   event_type_config:taskContent.event_type_config
@@ -10,12 +9,10 @@ const scenarioObj =(taskContent)=> {
 
 const configScenario = (newTask,taskContent) =>{
   const config = scenarioObj(taskContent)
-  console.log('configScenario',config,newTask,'tc',taskContent)
   return config
 }
 
 const taskDetailObj = (taskContent) => {
-  console.log('taskDetailObj',taskContent)
   return {
     name: taskContent.name,
     user_note: taskContent.user_note,
@@ -26,7 +23,6 @@ const taskDetailObj = (taskContent) => {
 
 const configTaskDetail = (newTask,taskContent)=> {
   const detail = taskDetailObj(taskContent)
-  console.log('configTaskDetail',detail)
   return detail
 }
 

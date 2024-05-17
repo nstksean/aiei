@@ -1,28 +1,29 @@
 import * as React from "react"
-import {useState,useEffect,useRef} from 'react';
+import { useState, useEffect, useRef } from 'react';
 
-import { Link, useParams, useLocation, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import useSWR from "swr"
-import {format, intervalToDuration } from 'date-fns'
+import {format, intervalToDuration, parseISO } from 'date-fns'
 
 import TailBreadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import NoSideBarLayout from '../layout/NoSideBarLayout';
 
-import { Button } from '../components/ui/button';
 import { AspectRatio } from '../components/ui/aspect-ratio';
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
+
 import EventList, { eventListColumn } from "../components/TaskInfo/EventList";
-import StreamVideo from "./StreamVideo";
 import Loader from "../common/Loader";
-import JSMpegPlayer from "../components/Videos/JSMpegPlayer";
+import CameraMasks from '../components/CameraMask/CameraMap.jsx'
+import StreamWithMask from "../components/StreamWithMask/index.js";
+import axios from "axios";
   
 const TaskDetailCard = (data) => {
-  const [taskDetail, setTaskDetail] = useState('')  
+  const [taskDetail, setTaskDetail] = useState('') 
 
   useEffect(() => {
     setTaskDetail(data.data)
-
   }, [taskDetail,data])
-  
   
   return(
     <div className="w-1/3 block rounded-lg bg-white text-center text-surface shadow-secondary-2 overflow-auto">
@@ -59,31 +60,31 @@ const TaskDetailCard = (data) => {
 const CameraCard = (data) => {
   const [cameras, setCameras] = useState([])  
   useEffect(() => {
-    setCameras(data.data.camera)
+    setCameras(data.data.region)
   }, [cameras,data])
   
   return(
     <div className="w-1/3 block rounded-lg bg-white text-center shadow-secondary-2 overflow-auto">
       <div className="border-b-2 border-neutral-100 p-3 bg-sky-700  text-lg text-zinc-50 font-semibold">Camera Information</div>
-      {cameras.length >0 ? 
+      {cameras ?
       cameras.map((camera)=>(
-        <div key={camera.id} className="flex justify-center my-4 mx-2 overflow-hidden rounded-lg shadow min-h-[180px]">
+        <div key={camera.camera.id} className="flex justify-center my-4 mx-2 overflow-hidden rounded-lg shadow min-h-[180px]">
           <div className="block rounded-lg  border-primary bg-white w-full">
             <div className="p-2 ">
               <div className="mb-2 pb-2 text-lg font-medium leading-tight text-sky-700 border-b-2 border-neutral-100">
-                {camera.name}
+                {camera.camera?.name}
               </div>
               <p className="text-sky-700 text-base font-medium leading-tight mb-1">Description </p>
               <p className="text-base text-zinc-600 ">
-                {camera.description}
+                {camera.camera?.description}
               </p>
               <p className="text-sky-700 text-base font-medium leading-tight mb-1">Location </p>
               <p className="text-base text-zinc-600 ">
-                {camera.location}
+                {camera.camera?.location}
               </p>
               <p className="text-sky-700 text-base font-medium leading-tight mb-1">Streaming </p>
-              <p className="text-base text-zinc-600 ">
-                {camera.RTSP}
+              <p className="text-base text-zinc-600 break-words">
+                {camera.camera?.RTSP}
               </p>
             </div>
           </div>
@@ -100,6 +101,18 @@ const ScheduleCard = (data) => {
   useEffect(() => {
     setSchedules(data.data.schedule_config)
   }, [schedules,data])
+
+  function timeSwitch(time){
+    let formattedDate = ''
+    if(time.length === 24 ){
+      const  t1 = String(time)
+      const isoT = parseISO(t1)
+      formattedDate = format(isoT,'yyyy-MM-dd')
+      return formattedDate
+    }else{
+      return 'invalid schedule'
+    }
+  }
   
   return(
     <div className="w-1/3 block rounded-lg bg-white text-center shadow-secondary-2 overflow-auto">
@@ -132,7 +145,7 @@ const ScheduleCard = (data) => {
                     ).hours + 1 + ' hours ' : ''
                 }
               </p>
-              <p className="text-zinc-700 text-base font-medium leading-tight mb-1">{String(schedule[0]).split('T',1)[0] + ' ~ '+ String(schedule[1]).split('T',1)[0]}</p>
+              <p className="text-zinc-700 text-base font-medium leading-tight mb-1">{timeSwitch(schedule[0]) + ' ~ '+ timeSwitch(schedule[1])}</p>
             </div>
           </div>
         </div>
@@ -154,17 +167,23 @@ const CardLoader = () => {
   )};
 
 
-const TaskInfo = ()=>{
-  const [taskInfos, setTaskInfos] = useState([]);
-  const [taskDInfos, setTaskDInfos] = useState([]);
+const TaskInfo = ({isLatesTask})=>{
+  const [taskIdInfos, setTaskDInfos] = useState([]);
   const [ events, setEvents] = useState([]);
+  const [ isEditZone, setIsEditZone] = useState(false);
+  let id = null;
+
+  if(isLatesTask){
+    id = 'latest';
+  }else if(isLatesTask === undefined) {
+    const params = useParams();
+    id = params.taskId;
+  }
   
-  const params = useParams()
-  const id = params.taskId
-  const { data:taskD, error, isLoading } = useSWR(`inference_job/${id}`)
-  const {data:eventById,error:eventError,isLoading:eventIsLoading , mutate:eventListMutate} = useSWR(`event/get_by_inference_job/${id}`,{ refreshInterval: 5000 })
+  const { data:taskD, error, isLoading } = useSWR(`inference_job/${id}`,{ refreshInterval: 2000 })
+  const { data:eventById, error:eventError, isLoading:eventIsLoading, mutate:eventListMutate } = useSWR(()=>(`event/get_by_inference_job/${taskD.id}`),{ refreshInterval: 5000 })
+
   const reloadCount = sessionStorage.getItem('reloadCount');
-  
   useEffect(() => {
     if(reloadCount < 1) {
       sessionStorage.setItem('reloadCount', String(reloadCount + 1));
@@ -175,29 +194,40 @@ const TaskInfo = ()=>{
     return () => {
     }
   }, [])
-  
-    console.log('events',events)
-  
+
+  const 
   
   useEffect(() => {
-    setEvents(eventById);    
+    setEvents(eventById);
     return ()=>{
     }
   }, [eventById]); 
   
-  
+  const toggleSwitch = () => {
+    console.log('toggleSwitch')
+    setIsEditZone(!isEditZone)
+  }
   return (
     <NoSideBarLayout>
       <TailBreadcrumb pageName='Task Information'/>
       <div className="gap-5 overflow-y-scroll grid grid-cols-1 sm:grid-cols-3 ">
-        <div className="bg-zinc-100 h-full bg-white p-5 shadow-default rounded-md overflow-hidden border border-stroke col-span-1 sm:col-span-2">
+        <div className="bg-zinc-100 bg-white p-5 shadow-default rounded-md overflow-hidden border border-stroke col-span-1 sm:col-span-2">
 
-          <div className='w-full max-h-[500px] min-h-[300px]'>
-              <AspectRatio ratio={16/9} className='bg-slate-500 max-h-[500px] min-h-[300px] flex justify-center rounded-md overflow-hidden'>
-                <StreamVideo></StreamVideo>
-              </AspectRatio>
+          <div className='w-full'>
+          <div className="flex items-center space-x-2 mb-4">
+            <Switch id="zoneSwitch" checked={isEditZone} onCheckedChange={toggleSwitch} />
+            <Label htmlFor="zoneSwitch">Edit zone</Label>
           </div>
-          
+            <div className= {`${isEditZone? ' hidden ':''}`+' ease-in-out duration-300 '}>
+              <AspectRatio ratio={16/9} className={'bg-slate-500 max-h-[720px] min-h-[300px] flex justify-center rounded-md overflow-hidden'}>
+                {isLoading? <div className="w-full"><CardLoader/></div> : <StreamWithMask data={taskD}/>}
+              </AspectRatio>
+            </div>
+              <div className={`${isEditZone? '':' hidden '}`+'' }>
+                <CameraMasks camera = 'crosswalk' data={taskD} isEditZone={isEditZone}/>
+              </div>
+          </div>
+              
           <div className="flex max-h-[50svh] min-h-[300px] my-5 gap-2">
             {isLoading? <div className="w-1/3"><CardLoader/></div> : <TaskDetailCard data={taskD}/>}
             {isLoading? <div className="w-1/3"><CardLoader/></div> : <CameraCard data={taskD}/>}

@@ -19,7 +19,6 @@ const Tables = () => {
   useEffect(() => {
     newTaskConfigStore.resetNewTaskConfig()
     editTaskStore.resetEditTaskStore()
-    console.log(editTaskStore.editTaskConfig)
   }, []);
 
   useEffect(() => {

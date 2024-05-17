@@ -170,11 +170,6 @@ export default function CameraSelect<TData, TValue>({
                     className="bg-blue-50 !border border-zinc-600 focus:border-2 border-zinc-950 data-[state=selected]:!bg-blue-200 data-[state=selected]:!border-2"
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
-                    /* TODO: Fix row election bug */
-                    /* onClick = {(event)=>{ console.log("selectRow",row,'isSelected',row.getIsSelected(),event)
-                    row.toggleSelected()
-                    event.stopPropogation()
-                  }} */
                     >
                     {row.getVisibleCells().map((cell) => (
                         <TableCell key={cell.id}>
