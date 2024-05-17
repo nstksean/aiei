@@ -70,8 +70,7 @@ export const columns: ColumnDef<InterenceJob>[] = [
     header: () => <div className="max-w-50">Date added</div>,
     cell: ({row}) => {
       const date = row?.original.create_time
-      console.log()
-      let formatDate = format(parseISO(date),'yyyy/MM/dd')
+\      let formatDate = format(parseISO(date),'yyyy/MM/dd')
       return (
         <React.Fragment>
                 <div className="">
@@ -87,7 +86,6 @@ export const columns: ColumnDef<InterenceJob>[] = [
     header: () => <div className="max-w-50">Last modification</div>,
     cell: ({row}) => {
       const editDate = row?.original.last_edit_time
-      console.log()
       let formatEditDate = format(parseISO(editDate),'yyyy/MM/dd')
       return (
         <React.Fragment>
@@ -149,7 +147,6 @@ export const columns: ColumnDef<InterenceJob>[] = [
           variant="outline" 
           size="icon"
           onClick={()=>{
-            console.log('row',rowData.id)
             navigate("EditTask/"+`${rowData.id}`)
           }}>
             <Pencil className="h-4 w-4"/>

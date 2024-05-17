@@ -7,7 +7,6 @@ import { useState,useEffect } from 'react';
 export default function DataFetch(){
     /* demo useSWR */
     const {data : scenario} = useSWR('scenario')
-    console.log('SWR',scenario)
 
     /* demo use axios */
     const [axiosData,setAxiosData]= useState('')

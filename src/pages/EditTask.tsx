@@ -53,23 +53,7 @@ const EditTask = () => {
       })
       setBookDays(...bookDays,formattedScheduleToDisable)
     }
-    return () => {
-      console.log('task2',bookDays)
-    }
-
   }, [taskInfoById])
-
-  function viewData(){
-    let bDays = taskInfoById.schedule_config
-    let bMap = bDays.map((item)=>{
-      return{
-        from:item[0],
-        to:item[1]
-      }
-    })
-    console.log('view', scheduleDates,bDays,bMap)
-    setBookDays(...bookDays,bMap)
-  }
   
   const [scheduleDates, setScheduleDates] = React.useState<Date>([])
   const [scheduleFrom, setScheduleFrom] = React.useState<Date>([])
@@ -111,7 +95,6 @@ const EditTask = () => {
     let timeRange = ''
     let timeDisable = ''
     let timeConcat = scheduleFrom.concat(scheduleTo)
-    // console.log('timeFrom',timeFrom,'timeTo','timeRange',timeRange,'timeConcat',timeConcat)
     if (timeFrom.length>0 && timeTo.length>0){
       timeRange = [scheduleFrom[0],scheduleTo[0]]
       timeDisable = {from:scheduleFrom[0],to:scheduleTo[0]}
@@ -186,7 +169,6 @@ const EditTask = () => {
       }
     }
     const taskAfterEditJson = JSON.stringify(taskAfterEdit)
-    console.log('gd',editStore,'tAEJson',taskAfterEditJson)
     return updateStoreCheckSubmit(taskAfterEdit)
   };
 
@@ -233,7 +215,6 @@ const EditTask = () => {
     const InferenceWithIdUrl = InferenceJobUrl+`${id}`
     const taskBody = editStore.editTaskConfig
     const taskBodyJson = JSON.stringify(taskBody)
-    console.log(taskBodyJson,id)
     axios.put(InferenceWithIdUrl,taskBodyJson , { 
       headers: {
         'Content-Type': 'application/json' 
@@ -416,11 +397,6 @@ const EditTask = () => {
               onClick={(e)=>gatherTaskDetail(e)}
               type="button"
               >Config</Button>
-              <Button 
-              className="m-4 bg-primary"
-              onClick={()=>viewData()}
-              type="button"
-              >viewData</Button>
               <Button 
                 className="m-4 bg-primary"
                 disabled={!allowConfirm}

@@ -4,7 +4,7 @@ import { useResizeObserver } from './hooks.jsx';
 import { useCallback, useMemo, useRef, useState, useEffect } from 'react';
 import useSWR from 'swr';
 import axios from 'axios';
-import bgPicture from '../../images/snapshot/0503snap.png'
+import bgPicture from '../../images/snapshot/index.png'
 import { useParams } from 'react-router-dom';
 export default function CameraMasks({ camera, data, isEditZone}) {
   const config = {
@@ -675,6 +675,12 @@ export default function CameraMasks({ camera, data, isEditZone}) {
     setSuccess('')
   }, [zonePoints,isEditZone])
   
+  useEffect(() => {
+    handleAddZone()
+    return ()=>(
+      handleRemoveZone()
+    )
+  }, [])
 
   const handleUpdateEditable = useCallback(
     (newPoints) => {
@@ -706,6 +712,7 @@ export default function CameraMasks({ camera, data, isEditZone}) {
     const n = Object.keys(zonePoints).filter((name) => name.startsWith('zone_')).length;
     if(n > 0){
       setError('One zone can only be added at a time')
+      return
     }else{
       const zoneName = `zone_${n}`;
       const newZonePoints = { ...zonePoints, [zoneName]: [] };
@@ -716,53 +723,13 @@ export default function CameraMasks({ camera, data, isEditZone}) {
   
   const handleRemoveZone = useCallback(
     (key) => {
-      console.log('remove',key,zonePoints)
-      const newZonePoints = { key:[] };
-      // delete newZonePoints[key];
+      const newZonePoints = { zone_0:[] };
       setZonePoints(newZonePoints);
       setError('');
       setSuccess('');
     },
     [zonePoints, setZonePoints]
   );
-  
-
-  const handleResetZone = useCallback(
-    (key) => {
-      console.log(key,zonePoints)
-      /* handleRemoveZone()
-      setTimeout(() => {
-        handleRemoveZone()
-      }, 500); */
-    },
-    [zonePoints, setZonePoints]
-  );
-
-  /* const handleSaveZones = useCallback( async ()  => {
-    try { 
-      const para = {
-        'name':String(Math.random()),
-        'region_sets':zonePoints[Object.keys(zonePoints)]
-      }
-      const requestBody = JSON.stringify(para)
-      const endpoint = `http://10.10.80.228:8043/api/region`;
-
-      const response = await axios.post(endpoint, requestBody, { 
-      headers: {
-        'Content-Type': 'application/json' 
-      }
-      });
-      if (response.status === 200) {
-        setSuccess(response.data);
-      }
-    } catch (error) {
-      if (error.response) {
-        setError(error.response.data.message);
-      } else {
-        setError(error.message);
-      }
-    }
-  }, [camera, zonePoints]); */
 
   const handleSaveZones = useCallback( async ()  => {
     try { 
@@ -792,7 +759,6 @@ export default function CameraMasks({ camera, data, isEditZone}) {
       }
       const requestBody = JSON.stringify(para);
       const endpoint = `http://10.10.80.228:8043/api/region/${data.id}`;
-      console.log('onSave=',requestBody,'ept=',endpoint)
 
       const response = await axios.put(endpoint, requestBody, { 
       headers: {
@@ -801,7 +767,6 @@ export default function CameraMasks({ camera, data, isEditZone}) {
       });
       if (response.status === 200) {
         setSuccess('Saved Successfully');
-        console.log(response.data);
       }
     } catch (error) {
       if (error.response) {
@@ -868,8 +833,7 @@ function maskYamlKeyPrefix() {
 }
 
 function zoneYamlKeyPrefix(_points, key) {
-  return `  ${key}:
-  region_sets: `;
+  return `  ${key}:`;
 }
 
 function objectYamlKeyPrefix() {
@@ -1060,9 +1024,9 @@ function MaskValues({
   return (
     <div className="overflow-hidden" onMouseOver={handleMousein} onMouseOut={handleMouseout}>
       <div className="flex space-x-4">
-        <Button onClick={onCreate}>Add</Button>
-        <Button onClick={onSave}>Save</Button>
-        <Button onClick={onReset}>Reset</Button>
+        <Button className='hidden' onClick={onCreate}>Add</Button>
+        <Button onClick={onSave}>Update</Button>
+        <Button className='hidden' onClick={onReset}>Reset</Button>
       </div>
       <pre className="relative overflow-auto font-mono text-gray-900 min-h-18 p-2">
         {yamlPrefix}
@@ -1122,7 +1086,7 @@ function Item({ mainkey, subkey, editing, handleEdit, points, showButtons, _hand
       onClick={handleEdit}
       title="Click to edit"
     >
-      {/* ${yamlKeyPrefix(points, mainkey, subkey)} */`${polylinePointsToPolyline(points)}`}
+      { `${yamlKeyPrefix(points, mainkey, subkey)} ${polylinePointsToPolyline(points)}`}
       {showButtons ? (
         <Button
           className="absolute bg-red-500 top-0 right-0 hover:bg-red-700"
@@ -1139,7 +1103,6 @@ function Item({ mainkey, subkey, editing, handleEdit, points, showButtons, _hand
 }
 
 function getPolylinePoints(polyline) {
-  console.log('getPolylinePoints')
   if (!polyline) {
     return;
   }

@@ -4,14 +4,6 @@ import JSMpeg from '@cycjimmy/jsmpeg-player';
 import StableMask from "../CameraMask/StableMask.js"
 import { useResizeObserver } from '../CameraMask/hooks.jsx';
 
-interface StreamVideoProps {
-  forwardedRef: ForwardedRef<HTMLCanvasElement>;
-};
-
-const ForwardedStreamVideo = forwardRef((props: StreamVideoProps, ref) => {
-  return <StreamVideo {...props} forwardedRef={ref as ForwardedRef<HTMLCanvasElement>} />;
-});
-
 export default function StreamWithMask(data){
 
   const config = {
@@ -50,7 +42,7 @@ export default function StreamWithMask(data){
 
   const initialized = useRef(false);
   let player: JSMpeg.Player | null = null;
-  const wsUrl = 'ws://10.10.80.228:8765/';
+  const wsUrl = 'ws://10.10.80.228:8700/';
   
   /* const showVideo = useCallback(() => {
     if (!initialized.current) {

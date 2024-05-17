@@ -35,7 +35,6 @@ export default function ScenarioCard({
       scenario_id:chosenScenario?.id ? chosenScenario.id : null,
       event_type_config:chosenScenario?.event_type ? chosenScenario.event_type : []
     }
-    console.log('gatherTaskConfig',newTaskConfig)
     setTaskConfig_scenario(newTaskConfig)
     return updateStore(newTaskConfig)
     };

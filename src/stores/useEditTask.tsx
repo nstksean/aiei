@@ -2,7 +2,6 @@ import {create} from 'zustand'
 
 const editTaskDetail = (oldState,taskAfterEdit) =>{
     const config = taskAfterEdit
-    console.log('editTaskDetail',config,oldState,taskAfterEdit)
     return config
 }
 

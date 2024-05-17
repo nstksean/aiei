@@ -84,7 +84,6 @@ const NewTask = () => {
     let timeRange = ''
     let timeDisable = ''
     let timeConcat = scheduleFrom.concat(scheduleTo)
-    // console.log('timeFrom',timeFrom,'timeTo','timeRange',timeRange,'timeConcat',timeConcat)
     if (timeFrom.length>0 && timeTo.length>0){
       timeRange = [scheduleFrom[0],scheduleTo[0]]
       timeDisable = {from:scheduleFrom[0],to:scheduleTo[0]}
@@ -136,13 +135,6 @@ const NewTask = () => {
   const {configTaskDetail } = useNewTask();
   const newTaskConfigStore = useNewTask();
 
-  React.useEffect(() => {
-    console.log(newTaskConfigStore)
-  }, [newTaskConfigStore.newTaskConfig]); 
-
-  
-
-
  /*  const validationSchema: ZodType<Form> = z.object({
     taskName:z.string().min(1),
     location:z.string().min(1),
@@ -162,7 +154,6 @@ const NewTask = () => {
   const [userNote,setUserNote] = useState<string>('')
 
   
-  // console.log('logErrors',errors) 
   function gatherTaskDetail(e){
     e.preventDefault()
     let storeData = newTaskConfigStore.newTaskConfig
@@ -177,13 +168,11 @@ const NewTask = () => {
         camera: chosenCamera.id
       }
     }
-    console.log('gd',newTaskDetailConfig,newTaskConfigStore.newTaskConfig)
     setTaskDetail(newTaskDetailConfig)
     return updateStore(newTaskDetailConfig)
   };
 
   function updateStore(taskDetail){
-    console.log('updateStore',taskDetail)
     if ( String(taskDetail.name) === '' 
     || String(taskDetail.user_note) === '' 
     || String(taskDetail.schedule_config) === '' 
@@ -242,10 +231,8 @@ const NewTask = () => {
       }
     })
     .then(function (newTaskResponse) {
-      console.log('poT=',newTaskResponse)
       axios.post(postTaskWithCamera)
       .then((linkTaskResponse)=>{
-        console.log('poTWC=',linkTaskResponse)
         navToLatest(newTaskResponse)
       })
       .catch(function (error) {

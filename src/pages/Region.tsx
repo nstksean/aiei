@@ -319,6 +319,7 @@ export default function Region(){
       setPlayer(newPlayer);
     }
     return ()=>{
+        /* log for debug */
       console.log('Player',player)
       if (player) {
         console.log('IsPlayer',player)

@@ -1,21 +1,19 @@
 import * as React from "react"
-import {useState,useEffect,useRef} from 'react';
+import { useState, useEffect, useRef } from 'react';
 
-import { Link, useParams, useLocation, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import useSWR from "swr"
 import {format, intervalToDuration, parseISO } from 'date-fns'
 
 import TailBreadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import NoSideBarLayout from '../layout/NoSideBarLayout';
 
-import { Button } from '../components/ui/button';
 import { AspectRatio } from '../components/ui/aspect-ratio';
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 
 import EventList, { eventListColumn } from "../components/TaskInfo/EventList";
 import Loader from "../common/Loader";
-import JSMpegPlayer from "../components/Videos/JSMpegPlayer";
 import CameraMasks from '../components/CameraMask/CameraMap.jsx'
 import StreamWithMask from "../components/StreamWithMask/index.js";
 import axios from "axios";
@@ -106,12 +104,14 @@ const ScheduleCard = (data) => {
 
   function timeSwitch(time){
     let formattedDate = ''
-    if(time){
+    if(time.length === 24 ){
       const  t1 = String(time)
       const isoT = parseISO(t1)
       formattedDate = format(isoT,'yyyy-MM-dd')
+      return formattedDate
+    }else{
+      return 'invalid schedule'
     }
-    return formattedDate
   }
   
   return(
@@ -184,7 +184,6 @@ const TaskInfo = ({isLatesTask})=>{
   const { data:eventById, error:eventError, isLoading:eventIsLoading, mutate:eventListMutate } = useSWR(()=>(`event/get_by_inference_job/${taskD.id}`),{ refreshInterval: 5000 })
 
   const reloadCount = sessionStorage.getItem('reloadCount');
-
   useEffect(() => {
     if(reloadCount < 1) {
       sessionStorage.setItem('reloadCount', String(reloadCount + 1));
@@ -195,6 +194,8 @@ const TaskInfo = ({isLatesTask})=>{
     return () => {
     }
   }, [])
+
+  const 
   
   useEffect(() => {
     setEvents(eventById);

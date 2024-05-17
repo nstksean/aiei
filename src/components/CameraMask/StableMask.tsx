@@ -63,7 +63,6 @@ export default function StableMask({ points, scale, width, height }) {
 
   
 function getPolylinePoints(polyline) {
-    console.log('getPolylinePoints')
     if (!polyline) {
       return;
     }
