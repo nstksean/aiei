@@ -2,8 +2,9 @@ import * as React from "react"
 import { useState, useEffect, useRef } from 'react';
 
 import { useParams } from 'react-router-dom';
-import useSWR from "swr"
-import {format, intervalToDuration, parseISO } from 'date-fns'
+import useSWR from "swr";
+import {format, intervalToDuration, parseISO } from 'date-fns';
+import axios from "axios";
 
 import TailBreadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import NoSideBarLayout from '../layout/NoSideBarLayout';
@@ -16,8 +17,8 @@ import EventList, { eventListColumn } from "../components/TaskInfo/EventList";
 import Loader from "../common/Loader";
 import CameraMasks from '../components/CameraMask/CameraMap.jsx'
 import StreamWithMask from "../components/StreamWithMask/index.js";
-import axios from "axios";
-  
+import {baseUrl} from '../api'
+
 const TaskDetailCard = (data) => {
   const [taskDetail, setTaskDetail] = useState('') 
 
@@ -116,16 +117,16 @@ const ScheduleCard = (data) => {
   
   return(
     <div className="w-1/3 block rounded-lg bg-white text-center shadow-secondary-2 overflow-auto">
-      <div className="border-b-2 border-neutral-100 p-3 bg-p1805 font-semibold text-zinc-50 text-lg">Schedule Information</div>
+      <div className="border-b-2 border-neutral-100 p-3 bg-copper font-semibold text-zinc-50 text-lg">Schedule Information</div>
       {schedules.length > 0 ?
       schedules?.map((schedule)=>(
         <div key={Math.random()} className="flex justify-center my-4 mx-2 overflow-hidden rounded-lg shadow ">
           <div className="block rounded-lg  border-primary bg-white w-full">
             <div className="p-2 ">
-              <div className="mb-2 pb-2 text-base font-medium leading-tight text-p1805 border-b-2 border-neutral-100">
+              <div className="mb-2 pb-2 text-base font-medium leading-tight text-copper border-b-2 border-neutral-100">
               Operation Time
               </div>
-              <p className="text-p1805 text-lg font-medium leading-tight mb-1">
+              <p className="text-copper text-lg font-medium leading-tight mb-1">
                 {intervalToDuration({
                   start: new Date(schedule[0]),
                   end: new Date(schedule[1])}
@@ -181,7 +182,12 @@ const TaskInfo = ({isLatesTask})=>{
   }
   
   const { data:taskD, error, isLoading } = useSWR(`inference_job/${id}`,{ refreshInterval: 2000 })
-  const { data:eventById, error:eventError, isLoading:eventIsLoading, mutate:eventListMutate } = useSWR(()=>(`event/get_by_inference_job/${taskD.id}`),{ refreshInterval: 5000 })
+  const { data:eventById, error:eventError, isLoading:eventIsLoading, mutate:eventListMutate } = useSWR(()=>(`event/get_by_inference_job_all/${taskD.id}`))
+
+  const { data:latestEvent, error:latestEventError } = useSWR(()=>(`event/get_by_inference_job/${taskD.id}`),{ refreshInterval: 1000 })
+
+
+
 
   const reloadCount = sessionStorage.getItem('reloadCount');
   useEffect(() => {
@@ -191,13 +197,38 @@ const TaskInfo = ({isLatesTask})=>{
     } else {
       sessionStorage.removeItem('reloadCount');
     }
-    return () => {
-    }
   }, [])
+  useEffect(() => {
+    const startMonitorUrl = `${baseUrl}api/inference/start/${id}`
+    axios.post(startMonitorUrl)
+    console.log('axios.post(startMonitorUrl')
+  }, [])
+  
   
   useEffect(() => {
     setEvents(eventById);
   }, [eventById]); 
+
+  useEffect(() => {
+    const newEvent = latestEvent? latestEvent : []
+    const oldEvent = eventById? eventById : []
+    let newEventList = []
+    if (String(newEvent).length !== 0 && String(oldEvent).length !== 0 ){
+      setEvents((events)=>{
+        if(newEvent[0].time === oldEvent[0].time){
+          return newEventList = oldEvent
+        }else{
+          return newEventList = [...newEvent,...oldEvent]
+        }
+        return newEventList.slice(0,20)
+        });
+    }else if(String(newEvent).length !== 0 && String(oldEvent).length === 0){
+      setEvents(newEvent)
+    }else if (String(newEvent).length === 0){
+      return 
+    }
+    
+  }, [eventById,latestEvent]); 
   
   const toggleSwitch = () => {
     console.log('toggleSwitch')

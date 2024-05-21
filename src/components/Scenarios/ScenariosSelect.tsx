@@ -23,7 +23,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "../ui/checkbox"
 import { Button } from "../ui/button"
-import {activeFetchData} from '../../api'
+import { activeFetchData, baseUrl} from '../../api'
 
 import { RotateCw, Search  } from 'lucide-react';
 
@@ -113,7 +113,7 @@ export default function ScenariosSelect<TData, TValue>({
     const [endpoint, setEndpoint] = React.useState('scenario')
 
     const getScenarios = React.useCallback(async () => {
-        const response = await axios.get(`http://10.10.80.228:8043/api/${endpoint}`);
+        const response = await axios.get(`(${baseUrl}api/${endpoint}`);
         setScenarioDatas(response.data);
       }, [endpoint]);
     
