@@ -14,6 +14,7 @@ import CameraSelect,{ cameraColumn, Cameras} from '../components/Camera/CameraSe
 import TailBreadcrumbSecondary from '../components/Breadcrumbs/BreadcrumbSecondary';
 import SelectGroupLocation from '../components/Forms/SelectGroup/SelectGroupLocation';
 import NoSideBarLayout from '../layout/NoSideBarLayout';
+import { baseUrl } from '../api'
 
 import {
   Breadcrumb,
@@ -114,7 +115,7 @@ const EditTask = () => {
   async function fetchCameraData(){
     try {
       const response = await fetch(
-        "http://10.10.80.228:8043/api/camera",
+        `${ baseUrl}api/camera`,
       );
       if (!response.ok) {
         throw new Error(`HTTP error: ${response.status}`);
@@ -211,7 +212,7 @@ const EditTask = () => {
   /* button component */
   const onSubmit = (e) =>{
      
-    const InferenceJobUrl = 'http://10.10.80.228:8043/api/inference_job/';
+    const InferenceJobUrl = `${baseUrl}api/inference_job/`;
     const InferenceWithIdUrl = InferenceJobUrl+`${id}`
     const taskBody = editStore.editTaskConfig
     const taskBodyJson = JSON.stringify(taskBody)

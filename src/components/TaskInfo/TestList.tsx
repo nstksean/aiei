@@ -25,8 +25,6 @@ import { Button } from "../ui/button"
 import {activeFetchData} from '../../api'
 
 import { RotateCw } from 'lucide-react';
-import { format, parseISO } from 'date-fns';
-
 
 
 
@@ -41,41 +39,24 @@ export type EventListData = {
   description: string
 }
 /* table column config */
-export const eventListColumn: ColumnDef<Scenarios>[] = [
+export const testListColumn: ColumnDef<Scenarios>[] = [
   {
     accessorKey: "event_type",
     header: "event_type",
     cell:({row}) => {
-      const rawData = row.original.event_type
-      const dataTime = row.original.time
-      // console.log(row.original)
-      function timeSwitch(time){
-        let formattedDate = ''
-        if(time.length === 26 ){
-          const  t1 = String(time)
-          const isoT = parseISO(t1)
-          formattedDate = format(isoT,'yyyy-MM-dd HH:mm:ss')
-          return formattedDate
-        }else{
-          return 'invalid schedule'
-        }
-      }
-      return	(<React.Fragment>
+      const rawData = row.original
+      console.log(rawData)
+      /* return	(<React.Fragment>
         <div className="">
-          <div className="font-medium text-lg text-red-950 mb-2">{rawData?.name}</div>
-          <div className="font-medium text-sm text-red-800 ">{timeSwitch(dataTime)}</div>
-          <div className="font-medium text-sm text-red-800 ">{dataTime}</div>
-
-          {/* <div className="font-medium text-sm text-zinc-600">{rawData.description}</div> */}
+          <div className="font-medium text-lg text-zinc-950 mb-2">{rawData.name}</div>
+          <div className="font-medium text-sm text-zinc-600">{rawData.description}</div>
         </div>
-      </React.Fragment>)
-    },
-    filterFn:'filterEventName'
-    
+      </React.Fragment>) */
+    },    
   }
 ]
 
-export default function EventList<TData, TValue>({
+export default function TestList<TData, TValue>({
     columns,
     data,
     refresh
@@ -90,21 +71,15 @@ export default function EventList<TData, TValue>({
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
-    filterFns:{
-        filterEventName:(row,columnId,filterValue)=>{
-            const target = row.original.event_type.name
-            return String(target).toLowerCase().includes(String(filterValue).toLowerCase())
-        }
-    },
     state: {
         sorting,
         columnFilters,
     },
+
     })
 
-
     return (
-    <div className="basis-2/5 h-full bg-white p-5 rounded-md max-h-[970px]  min-h-[300px] overflow-hidden">
+    <div className="basis-2/5 h-full bg-white p-5 rounded-md max-h-[740px] min-h-[300px] overflow-hidden">
         {/* scenario tool bar */}
         <div className="flex flex-col pb-5 text-clip">
                 <p className="text-xl text-primary font-medium">Event List</p>
@@ -136,7 +111,7 @@ export default function EventList<TData, TValue>({
         </div>
         {/* scenario title */}
         
-        <div className=" rounded-md overflow-y-auto max-h-[820px] min-h-19">
+        <div className="h-5/6 rounded-md overflow-y-auto max-h-[580px] min-h-19">
             <Table className='border-separate border-spacing-y-2' >
 							<TableHeader className="bg-gray-2 hidden">
 									{table.getHeaderGroups().map((headerGroup) => (
@@ -160,7 +135,7 @@ export default function EventList<TData, TValue>({
 									{table.getRowModel().rows?.length ? (
 									table.getRowModel().rows.map((row) => (
 											<TableRow
-											className="bg-eventAlert rounded-xl  hover:!bg-red-200 overflow-hidden border-zinc-600 focus:border-2 border-zinc-950 data-[state=selected]:!bg-emerald-200 data-[state=selected]:!border-2"
+											className="bg-green-100 rounded-xl overflow-hidden border-zinc-600 focus:border-2 border-zinc-950 data-[state=selected]:!bg-emerald-200 data-[state=selected]:!border-2"
 											key={row.id}
 											>
 											{row.getVisibleCells().map((cell) => (

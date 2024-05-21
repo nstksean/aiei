@@ -16,6 +16,7 @@ import CameraSelect,{ cameraColumn, Cameras} from '../components/Camera/CameraSe
 import TailBreadcrumbSecondary from '../components/Breadcrumbs/BreadcrumbSecondary';
 import SelectGroupLocation from '../components/Forms/SelectGroup/SelectGroupLocation';
 import NoSideBarLayout from '../layout/NoSideBarLayout';
+import {baseUrl} from '../api'
 
 import {
   Breadcrumb,
@@ -103,7 +104,7 @@ const NewTask = () => {
   async function fetchCameraData(){
     try {
       const response = await fetch(
-        "http://10.10.80.228:8043/api/camera",
+        `${baseUrl}api/camera`,
       );
       if (!response.ok) {
         throw new Error(`HTTP error: ${response.status}`);
@@ -220,8 +221,8 @@ const NewTask = () => {
   const onSubmit = (e) =>{
     e.preventDefault();
     e.stopPropagation();
-    const postInferenceJobUrl = 'http://10.10.80.228:8043/api/inference_job';
-    const postTaskWithCamera = 'http://10.10.80.228:8043/api/inference_job/latest_link/camera/1';
+    const postInferenceJobUrl = `${baseUrl}api/inference_job`;
+    const postTaskWithCamera = `${baseUrl}api/inference_job/latest_link/camera/1`;
     const taskBody = newTaskConfigStore.newTaskConfig
     const taskBodyJson = JSON.stringify(taskBody)
 

@@ -1,6 +1,8 @@
 import {Button} from '../ui/button.tsx';
 import Switch from './Switch.jsx';
 import { useResizeObserver } from './hooks.jsx';
+import { baseUrl } from '../../api/index.jsx';
+
 import { useCallback, useMemo, useRef, useState, useEffect } from 'react';
 import useSWR from 'swr';
 import axios from 'axios';
@@ -758,7 +760,7 @@ export default function CameraMasks({ camera, data, isEditZone}) {
         }
       }
       const requestBody = JSON.stringify(para);
-      const endpoint = `http://10.10.80.228:8043/api/region/${data.id}`;
+      const endpoint = `${baseUrl}api/region/${data.id}`;
 
       const response = await axios.put(endpoint, requestBody, { 
       headers: {
