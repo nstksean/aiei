@@ -42,7 +42,7 @@ export default function StreamWithMask(data){
 
   const initialized = useRef(false);
   let player: JSMpeg.Player | null = null;
-  const wsUrl = 'ws://10.10.80.46:8765/';
+  const wsUrl = 'ws://10.10.80.228:8765/';
   
   /* const showVideo = useCallback(() => {
     if (!initialized.current) {
@@ -64,7 +64,7 @@ export default function StreamWithMask(data){
   useEffect(() => {
     if (!initialized.current) {
       initialized.current = true;
-      const wsUrl = 'ws://10.10.80.46:8765/';
+      const wsUrl = 'ws://10.10.80.228:8765/';
       let audioContext = null;
       if (!audioContext) {
         audioContext = new (window.AudioContext)();
