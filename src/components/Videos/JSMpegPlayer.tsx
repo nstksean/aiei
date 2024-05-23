@@ -3,7 +3,7 @@ import JSMpeg from '@cycjimmy/jsmpeg-player';
 
 export default function JSMpegPlayer() {
     const playerRef = useRef();
-    const url = 'ws://10.10.80.228:8765/';
+    const url = 'ws://127.0.0.1:8765/';
   
     useEffect(() => {
       const video = new JSMpeg.VideoElement(

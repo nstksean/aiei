@@ -725,10 +725,11 @@ export default function CameraMasks({ camera, data, isEditZone}) {
   
   const handleRemoveZone = useCallback(
     (key) => {
+      setSuccess('Click twice to confirm changes');
       const newZonePoints = { zone_0:[] };
       setZonePoints(newZonePoints);
       setError('');
-      setSuccess('');
+      // setSuccess('');
     },
     [zonePoints, setZonePoints]
   );
@@ -769,6 +770,7 @@ export default function CameraMasks({ camera, data, isEditZone}) {
       });
       if (response.status === 200) {
         setSuccess('Saved Successfully');
+        axios.post(`${baseUrl}api/inference/start/${data.id}`)
       }
     } catch (error) {
       if (error.response) {
@@ -777,6 +779,27 @@ export default function CameraMasks({ camera, data, isEditZone}) {
         setError(error.message);
       }
     }
+  }, [camera, zonePoints, data]);
+
+  const handleStopTask = useCallback( async ()  => {
+    try { 
+      const endpoint = `${baseUrl}api/inference/stop`;
+      const response = await axios.post(endpoint);
+      if (response.status === 200) {
+        console.log('Stop task')
+      }
+    } catch (error) {
+      if (error.response) {
+        console.log(error.response.data.message);
+      } else {
+        console.log(error.message);
+      }
+    }
+  }, [camera, zonePoints, data]);
+
+  const handleUpdateZones = useCallback( async ()  => {
+    handleStopTask();
+    handleSaveZones();
   }, [camera, zonePoints, data]);
 
 
@@ -810,7 +833,7 @@ export default function CameraMasks({ camera, data, isEditZone}) {
           <MaskValues
             editing={editing}
             title="Zones"
-            onSave={handleSaveZones}
+            onSave={handleUpdateZones}
             onCreate={handleAddZone}
             onEdit={handleEditZone}
             onRemove={handleRemoveZone}
