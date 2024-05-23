@@ -10,7 +10,7 @@ function StreamVideo() {
   useEffect(() => {
     if (!initialized.current) {
       initialized.current = true;
-      const wsUrl = 'ws://127.0.0.1:8765/';
+      const wsUrl = 'ws://10.10.80.46:8765/';
       let audioContext = null;
       if (!audioContext) {
         audioContext = new (window.AudioContext)();
