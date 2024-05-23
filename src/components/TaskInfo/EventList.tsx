@@ -118,9 +118,12 @@ export default function EventList<TData, TValue>({
         columnFilters,
     },
     })
+    
 
-    const { data:latestEvent, error:latestEventError } = useSWR(()=>(`event/get_by_inference_job/${id}`),{ refreshInterval: 1000 })
     const { data:eventById, error:eventError, isLoading:eventIsLoading } = useSWR(()=>(`event/get_by_inference_job_all/${id}`))
+    const { data:eventAfterAll, error:eventAfterAllError,isLoading:eventAfterAllIsLoading } = useSWR(()=>(`event/get_by_inference_job/${eventById.event_type.id}`))
+    const { data:latestEvent, error:latestEventError,isLoading:latestEventIsLoading } = useSWR(()=>(`event/get_by_inference_job/${id}`),{ refreshInterval: 800 })
+    
     
 
     useEffect(() => {
@@ -133,17 +136,16 @@ export default function EventList<TData, TValue>({
       const newEvent = latestEvent? latestEvent : []
       const oldEvent = tableData? tableData : []
       let newEventList = []
-      if (String(newEvent).length !== 0 && String(oldEvent).length !== 0 ){
+      if ( String(newEvent) !== 'undefine' && String(oldEvent) !== 'undefine' ){
         setTableData((events)=>{
-          if(newEvent[0].time === oldEvent[0].time){
+          if( newEvent[0].time === oldEvent[0].time){
             return oldEvent
-          }else if(newEvent[0].time !== oldEvent[0].time) {
+          }else if( newEvent[0].time !== oldEvent[0].time) {
             newEventList = [...newEvent,...oldEvent]
             return newEventList.slice(0,20)
           }
           });
       }else if(String(newEvent).length !== 0 && String(oldEvent).length === 0){
-        console.log('setTableData(newEvent)')
         setTableData(newEvent)
       }else if (String(newEvent).length === 0){
         return 
