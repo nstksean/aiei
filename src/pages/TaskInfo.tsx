@@ -184,8 +184,6 @@ const TaskInfo = ({isLatesTask})=>{
   const { data:taskD, error, isLoading } = useSWR(`inference_job/${id}`,{ refreshInterval: 2000 })
   const { data:eventById, error:eventError, isLoading:eventIsLoading, mutate:eventListMutate } = useSWR(()=>(`event/get_by_inference_job_all/${taskD.id}`))
 
-  const { data:latestEvent, error:latestEventError } = useSWR(()=>(`event/get_by_inference_job/${taskD.id}`),{ refreshInterval: 1000 })
-
 
 
 
@@ -200,8 +198,9 @@ const TaskInfo = ({isLatesTask})=>{
   }, [])
   useEffect(() => {
     const startMonitorUrl = `${baseUrl}api/inference/start/${id}`
-    axios.post(startMonitorUrl)
-    console.log('axios.post(startMonitorUrl')
+    if (reloadCount === '1' ){
+      axios.post(startMonitorUrl)
+    }
   }, [])
   
   
@@ -209,29 +208,7 @@ const TaskInfo = ({isLatesTask})=>{
     setEvents(eventById);
   }, [eventById]); 
 
-  useEffect(() => {
-    const newEvent = latestEvent? latestEvent : []
-    const oldEvent = eventById? eventById : []
-    let newEventList = []
-    if (String(newEvent).length !== 0 && String(oldEvent).length !== 0 ){
-      setEvents((events)=>{
-        if(newEvent[0].time === oldEvent[0].time){
-          return newEventList = oldEvent
-        }else{
-          return newEventList = [...newEvent,...oldEvent]
-        }
-        return newEventList.slice(0,20)
-        });
-    }else if(String(newEvent).length !== 0 && String(oldEvent).length === 0){
-      setEvents(newEvent)
-    }else if (String(newEvent).length === 0){
-      return 
-    }
-    
-  }, [eventById,latestEvent]); 
-  
   const toggleSwitch = () => {
-    console.log('toggleSwitch')
     setIsEditZone(!isEditZone)
   }
   return (
@@ -266,6 +243,7 @@ const TaskInfo = ({isLatesTask})=>{
           data={events}
           columns={eventListColumn}
           refresh = {eventListMutate}
+          id={id}
           ></EventList>
         </div>
       </div>

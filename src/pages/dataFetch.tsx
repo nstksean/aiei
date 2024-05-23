@@ -7,13 +7,13 @@ import { io } from 'socket.io-client';
 
 import TestList, { testListColumn } from "../components/TaskInfo/TestList";
 
-const socket = io('http://localhost:8123');
+// const socket = io('http://localhost:8123');
 
 export default function DataFetch(){
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [fooEvents, setFooEvents] = useState([]);
 
-  useEffect(() => {
+  /* useEffect(() => {
 const socket = io('http://localhost:8123');
 
     // Listen for 'dataUpdate' event
@@ -28,7 +28,7 @@ const socket = io('http://localhost:8123');
 
     // Cleanup function to close the connection when component unmounts
     return () => socket.close();
-  }, []);
+  }, []); */
 
   return (
     <DefaultLayout>

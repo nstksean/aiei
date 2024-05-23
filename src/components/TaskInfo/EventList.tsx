@@ -1,4 +1,6 @@
 import * as React from "react"
+import { useEffect, useState } from 'react';
+
 
 import {
     ColumnDef,
@@ -25,14 +27,16 @@ import { Button } from "../ui/button"
 import {activeFetchData} from '../../api'
 
 import { RotateCw } from 'lucide-react';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, addHours } from 'date-fns';
+import useSWR from "swr";
+
 
 
 
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
-data: TData[]
+  data: TData[]
 }
 
 export type EventListData = {
@@ -48,27 +52,38 @@ export const eventListColumn: ColumnDef<Scenarios>[] = [
     cell:({row}) => {
       const rawData = row.original.event_type
       const dataTime = row.original.time
-      // console.log(row.original)
+      const alertTypeFlag = String(row.original?.inference_result)
+      // console.log(alertTypeFlag)
       function timeSwitch(time){
         let formattedDate = ''
         if(time.length === 26 ){
-          const  t1 = String(time)
-          const isoT = parseISO(t1)
-          formattedDate = format(isoT,'yyyy-MM-dd HH:mm:ss')
+          const isoT = parseISO(String(time))
+          const plus8T = addHours(isoT,8)
+          formattedDate = format(plus8T,'yyyy-MM-dd HH:mm:ss')
           return formattedDate
         }else{
           return 'invalid schedule'
         }
       }
-      return	(<React.Fragment>
-        <div className="">
-          <div className="font-medium text-lg text-red-950 mb-2">{rawData?.name}</div>
+
+      return	( alertTypeFlag ==='' ?
+      (<React.Fragment>
+        <div className="bg-eventClear hover:!bg-green-200 p-4">
+          <div className="font-semibold text-xl text-green-700 mb-2">{'Detection area Clear'}</div>
+          <div className="font-medium text-sm text-green-800 ">{timeSwitch(dataTime)}</div>
+          <div className="font-medium text-sm text-green-800 ">{dataTime}</div>
+          {/* <div className="font-medium text-sm text-zinc-600">{rawData.description}</div> */}
+        </div>
+      </React.Fragment>) :
+      (<React.Fragment>
+        <div className="bg-eventAlert hover:!bg-red-200 p-4">
+          <div className="font-semibold text-xl text-red-700 mb-2">{rawData?.name}</div>
           <div className="font-medium text-sm text-red-800 ">{timeSwitch(dataTime)}</div>
           <div className="font-medium text-sm text-red-800 ">{dataTime}</div>
-
           {/* <div className="font-medium text-sm text-zinc-600">{rawData.description}</div> */}
         </div>
       </React.Fragment>)
+      )
     },
     filterFn:'filterEventName'
     
@@ -78,13 +93,15 @@ export const eventListColumn: ColumnDef<Scenarios>[] = [
 export default function EventList<TData, TValue>({
     columns,
     data,
-    refresh
+    refresh,
+    id
 }: DataTableProps<TData, TValue>) {
-    const [sorting, setSorting] = React.useState<SortingState>([])
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+    const [sorting, setSorting] = React.useState<SortingState>([]);
+    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+    const [tableData, setTableData ] = useState([])
     
     const table = useReactTable({
-    data,
+    data:tableData,
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
@@ -101,6 +118,38 @@ export default function EventList<TData, TValue>({
         columnFilters,
     },
     })
+
+    const { data:latestEvent, error:latestEventError } = useSWR(()=>(`event/get_by_inference_job/${id}`),{ refreshInterval: 1000 })
+    const { data:eventById, error:eventError, isLoading:eventIsLoading } = useSWR(()=>(`event/get_by_inference_job_all/${id}`))
+    
+
+    useEffect(() => {
+      if(!eventIsLoading){
+      setTableData(eventById)
+      }
+    }, [eventIsLoading]); 
+
+    useEffect(() => {
+      const newEvent = latestEvent? latestEvent : []
+      const oldEvent = tableData? tableData : []
+      let newEventList = []
+      if (String(newEvent).length !== 0 && String(oldEvent).length !== 0 ){
+        setTableData((events)=>{
+          if(newEvent[0].time === oldEvent[0].time){
+            return oldEvent
+          }else if(newEvent[0].time !== oldEvent[0].time) {
+            newEventList = [...newEvent,...oldEvent]
+            return newEventList.slice(0,20)
+          }
+          });
+      }else if(String(newEvent).length !== 0 && String(oldEvent).length === 0){
+        console.log('setTableData(newEvent)')
+        setTableData(newEvent)
+      }else if (String(newEvent).length === 0){
+        return 
+      }
+      
+    }, [tableData,latestEvent]); 
 
 
     return (
@@ -160,11 +209,11 @@ export default function EventList<TData, TValue>({
 									{table.getRowModel().rows?.length ? (
 									table.getRowModel().rows.map((row) => (
 											<TableRow
-											className="bg-eventAlert rounded-xl  hover:!bg-red-200 overflow-hidden border-zinc-600 focus:border-2 border-zinc-950 data-[state=selected]:!bg-emerald-200 data-[state=selected]:!border-2"
+											className=" rounded-xl overflow-hidden border-zinc-600 focus:border-2 border-zinc-950 !p-0"
 											key={row.id}
 											>
 											{row.getVisibleCells().map((cell) => (
-													<TableCell key={cell.id}>
+													<TableCell key={cell.id} className='!p-0'>
 													{flexRender(cell.column.columnDef.cell, cell.getContext())}
 													</TableCell>
 											))}
