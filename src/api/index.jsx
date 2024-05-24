@@ -2,7 +2,7 @@ import useSWR,{SWRConfig} from "swr";
 import axios from "axios";
 
 
-export const baseUrl ="http://127.0.0.1:7000/"
+export const baseUrl ="http://10.10.80.46:7000/"
 axios.defaults.baseURL = `${baseUrl}api/`;
 
 export function ApiProvider({ children, options }) {
