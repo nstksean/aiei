@@ -25,7 +25,7 @@ import { Checkbox } from "../ui/checkbox"
 import { Button } from "../ui/button"
 import { activeFetchData, baseUrl} from '../../api'
 
-import { RotateCw, Search  } from 'lucide-react';
+import { CloudHail, RotateCw, Search  } from 'lucide-react';
 
 
 
@@ -70,8 +70,8 @@ export const scenariosColumn: ColumnDef<Scenarios>[] = [
         cell:({row}) => (
             <React.Fragment>
                 <div className="">
-                    <div className="font-medium text-black">{row.original.caption}</div>
-                    <div className="font-medium text-sm">{row.original.description}</div>
+                    <div className="font-medium text-blue-600 text-lg mb-2">{row.original.caption}</div>
+                    <div className="font-medium text-base">{row.original.description}</div>
                 </div>
             </React.Fragment>
         )
@@ -113,7 +113,7 @@ export default function ScenariosSelect<TData, TValue>({
     const [endpoint, setEndpoint] = React.useState('scenario')
 
     const getScenarios = React.useCallback(async () => {
-        const response = await axios.get(`(${baseUrl}api/${endpoint}`);
+        const response = await axios.get(`${baseUrl}api/${endpoint}`);
         setScenarioDatas(response.data);
       }, [endpoint]);
     
@@ -163,11 +163,11 @@ export default function ScenariosSelect<TData, TValue>({
             </Button>
         </div>
         {/* scenario title */}
-        <div className="flex flex-col h-16 text-clip">
-                <p className="text-3xl text-blue-600 font-medium">Scenarios</p>
-                <p className="text-lg text-blue-600 font-medium">Step.1 Select Scenario</p>
+        <div className="flex flex-col text-clip">
+                <p className="text-2xl text-primary font-medium my-1">Scenarios</p>
+                <p className="text-lg text-blue-600 font-medium my-1">Step.1 Select Scenario</p>
         </div>
-        <div className="h-5/6 rounded-md overflow-y-auto max-h-[580px] min-h-19">
+        <div className="h-5/6 rounded-md overflow-y-auto max-h-[580px] min-h-19 my-2">
             <Table className='border-separate border-spacing-y-2' >
             <TableHeader className="bg-gray-2 hidden">
                 {table.getHeaderGroups().map((headerGroup) => (

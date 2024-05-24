@@ -42,7 +42,7 @@ export default function StreamWithMask(data){
 
   const initialized = useRef(false);
   let player: JSMpeg.Player | null = null;
-  const wsUrl = 'ws://127.0.0.1:8765/';
+  const wsUrl = 'ws://10.10.80.46:8765/';
   
   /* const showVideo = useCallback(() => {
     if (!initialized.current) {

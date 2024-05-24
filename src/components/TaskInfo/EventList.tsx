@@ -53,7 +53,6 @@ export const eventListColumn: ColumnDef<Scenarios>[] = [
       const rawData = row.original.event_type
       const dataTime = row.original.time
       const alertTypeFlag = String(row.original?.inference_result)
-      // console.log(alertTypeFlag)
       function timeSwitch(time){
         let formattedDate = ''
         if(time.length === 26 ){
@@ -136,7 +135,19 @@ export default function EventList<TData, TValue>({
       const newEvent = latestEvent? latestEvent : []
       const oldEvent = tableData? tableData : []
       let newEventList = []
-      if ( String(newEvent) !== 'undefine' && String(oldEvent) !== 'undefine' ){
+      function compareTime(obj1,obj2,key){
+        const value1 = obj1[0]?.key ? obj1[0].key: {}
+        const value2 = obj2[0]?.key ? obj2[0].key : {}
+        const ans = value1 === value2        
+        return ans
+      }
+      setTableData(() => {
+        if ( String(newEvent) !== ''){
+          newEventList = [...newEvent,...oldEvent]
+        return newEventList.slice(0,20)
+        }
+      })
+      /* if ( String(newEvent) !== 'undefined' && String(oldEvent) !== 'undefined' ){
         setTableData((events)=>{
           if( newEvent[0].time === oldEvent[0].time){
             return oldEvent
