@@ -26,7 +26,7 @@ import { Checkbox } from "../ui/checkbox"
 import { Button } from "../ui/button"
 import {activeFetchData} from '../../api'
 
-import { RotateCw } from 'lucide-react';
+import { CloudCog, RotateCw } from 'lucide-react';
 import { format, parseISO, addHours } from 'date-fns';
 import useSWR from "swr";
 
@@ -55,7 +55,7 @@ export const eventListColumn: ColumnDef<Scenarios>[] = [
       const alertTypeFlag = String(row.original?.inference_result)
       function timeSwitch(time){
         let formattedDate = ''
-        if(time.length === 26 ){
+        if(time.length > 20 ){
           const isoT = parseISO(String(time))
           const plus8T = addHours(isoT,8)
           formattedDate = format(plus8T,'yyyy-MM-dd HH:mm:ss')
@@ -69,7 +69,7 @@ export const eventListColumn: ColumnDef<Scenarios>[] = [
       (<React.Fragment>
         <div className="bg-eventClear hover:!bg-green-200 p-4">
           <div className="font-semibold text-xl text-green-700 mb-2">{'Detection area Clear'}</div>
-          <div className="font-medium text-sm text-green-800 ">{timeSwitch(dataTime)}</div>
+          <div className="font-medium text-sm text-green-800 hidden ">{timeSwitch(dataTime)}</div>
           <div className="font-medium text-sm text-green-800 ">{dataTime}</div>
           {/* <div className="font-medium text-sm text-zinc-600">{rawData.description}</div> */}
         </div>
@@ -77,7 +77,7 @@ export const eventListColumn: ColumnDef<Scenarios>[] = [
       (<React.Fragment>
         <div className="bg-eventAlert hover:!bg-red-200 p-4">
           <div className="font-semibold text-xl text-red-700 mb-2">{rawData?.name}</div>
-          <div className="font-medium text-sm text-red-800 ">{timeSwitch(dataTime)}</div>
+          <div className="font-medium text-sm text-red-800 hidden ">{timeSwitch(dataTime)}</div>
           <div className="font-medium text-sm text-red-800 ">{dataTime}</div>
           {/* <div className="font-medium text-sm text-zinc-600">{rawData.description}</div> */}
         </div>
@@ -121,7 +121,7 @@ export default function EventList<TData, TValue>({
 
     const { data:eventById, error:eventError, isLoading:eventIsLoading } = useSWR(()=>(`event/get_by_inference_job_all/${id}`))
     const { data:eventAfterAll, error:eventAfterAllError,isLoading:eventAfterAllIsLoading } = useSWR(()=>(`event/get_by_inference_job/${eventById.event_type.id}`))
-    const { data:latestEvent, error:latestEventError,isLoading:latestEventIsLoading } = useSWR(()=>(`event/get_by_inference_job/${id}`),{ refreshInterval: 800 })
+    const { data:latestEvent, error:latestEventError,isLoading:latestEventIsLoading } = useSWR(()=>(`event/get_by_inference_job/${id}`),{ refreshInterval: 500 })
     
     
 
@@ -149,10 +149,13 @@ export default function EventList<TData, TValue>({
       })
       /* if ( String(newEvent) !== 'undefined' && String(oldEvent) !== 'undefined' ){
         setTableData((events)=>{
-          if( newEvent[0].time === oldEvent[0].time){
+          if( String(newEvent) !== ''&& String(newEvent) !== 'undefined' && compareTime(newEvent,oldEvent,'time')) {
+            console.log('NoUpdate',compareTime(newEvent,oldEvent,'time'))
             return oldEvent
-          }else if( newEvent[0].time !== oldEvent[0].time) {
+          }else if( String(newEvent) !== ''&& String(newEvent) !== 'undefined' && compareTime(newEvent,oldEvent,'time')) {
             newEventList = [...newEvent,...oldEvent]
+            console.log('Update',compareTime(newEvent,oldEvent,'time'))
+
             return newEventList.slice(0,20)
           }
           });
@@ -160,9 +163,9 @@ export default function EventList<TData, TValue>({
         setTableData(newEvent)
       }else if (String(newEvent).length === 0){
         return 
-      }
+      } */
       
-    }, [tableData,latestEvent]); 
+    }, [eventById,latestEvent]); 
 
 
     return (
