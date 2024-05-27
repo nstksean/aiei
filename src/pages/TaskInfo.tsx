@@ -127,6 +127,15 @@ const ScheduleCard = (data) => {
               Operation Time
               </div>
               <p className="text-copper text-lg font-medium leading-tight mb-1">
+              {intervalToDuration({
+                  start: new Date(schedule[0]),
+                  end: new Date(schedule[1])}
+                  ).months ? 
+                  intervalToDuration({
+                    start: new Date(schedule[0]),
+                    end: new Date(schedule[1])}
+                    ).months + ' Months / ' : ''
+                }
                 {intervalToDuration({
                   start: new Date(schedule[0]),
                   end: new Date(schedule[1])}
@@ -134,7 +143,7 @@ const ScheduleCard = (data) => {
                   intervalToDuration({
                     start: new Date(schedule[0]),
                     end: new Date(schedule[1])}
-                    ).days + ' Days ' : ''
+                    ).days + ' Days / ' : ''
                 }
                 {intervalToDuration({
                   start: new Date(schedule[0]),
@@ -143,7 +152,7 @@ const ScheduleCard = (data) => {
                   intervalToDuration({
                     start: new Date(schedule[0]),
                     end: new Date(schedule[1])}
-                    ).hours + 1 + ' hours ' : ''
+                    ).hours + ' hours ' : ''
                 }
               </p>
               <p className="text-zinc-700 text-base font-medium leading-tight mb-1">{timeSwitch(schedule[0]) + ' ~ '+ timeSwitch(schedule[1])}</p>

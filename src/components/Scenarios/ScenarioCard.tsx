@@ -115,7 +115,6 @@ export default function ScenarioCard({
 
   useEffect(() => {
     setChosenScenario(chosenRow)
-    return()=>console.log(chosenScenario)
   }, [chosenRow])
 
   let scenarioId = chosenScenario?.id ? chosenScenario.id : " "
@@ -143,7 +142,6 @@ export default function ScenarioCard({
       return
     }else if (Number.isInteger(newTaskConfig.scenario_id)){
       newTaskConfigStore.configScenario(newTaskConfig)
-      console.log('set data')
     }
   }
 
