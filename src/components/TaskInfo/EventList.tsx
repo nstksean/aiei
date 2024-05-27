@@ -29,10 +29,9 @@ import {activeFetchData} from '../../api'
 import { CloudCog, RotateCw } from 'lucide-react';
 import { format, parseISO, addHours } from 'date-fns';
 import useSWR from "swr";
-
-
-
-
+import { baseUrl } from '../../api'
+import { io } from 'socket.io-client';
+const socket = io(baseUrl)
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -49,15 +48,15 @@ export const eventListColumn: ColumnDef<Scenarios>[] = [
   {
     accessorKey: "event_type",
     header: "event_type",
-    cell:({row}) => {
-      const rawData = row.original.event_type
+    cell:({row}) => {      
+      const rawData = row.original
       const dataTime = row.original.time
       const alertTypeFlag = String(row.original?.inference_result)
       function timeSwitch(time){
         let formattedDate = ''
         if(time.length > 20 ){
           const isoT = parseISO(String(time))
-          const plus8T = addHours(isoT,8)
+          const plus8T = addHours(isoT,0)
           formattedDate = format(plus8T,'yyyy-MM-dd HH:mm:ss')
           return formattedDate
         }else{
@@ -69,17 +68,15 @@ export const eventListColumn: ColumnDef<Scenarios>[] = [
       (<React.Fragment>
         <div className="bg-eventClear hover:!bg-green-200 p-4">
           <div className="font-semibold text-xl text-green-700 mb-2">{'Detection area Clear'}</div>
-          <div className="font-medium text-sm text-green-800 hidden ">{timeSwitch(dataTime)}</div>
-          <div className="font-medium text-sm text-green-800 ">{dataTime}</div>
-          {/* <div className="font-medium text-sm text-zinc-600">{rawData.description}</div> */}
+          <div className="font-medium text-sm text-green-800 ">{timeSwitch(dataTime)}</div>
+          <div className="font-medium text-sm text-green-800 hidden ">{dataTime}</div>
         </div>
       </React.Fragment>) :
       (<React.Fragment>
         <div className="bg-eventAlert hover:!bg-red-200 p-4">
-          <div className="font-semibold text-xl text-red-700 mb-2">{rawData?.name}</div>
-          <div className="font-medium text-sm text-red-800 hidden ">{timeSwitch(dataTime)}</div>
-          <div className="font-medium text-sm text-red-800 ">{dataTime}</div>
-          {/* <div className="font-medium text-sm text-zinc-600">{rawData.description}</div> */}
+          <div className="font-semibold text-xl text-red-700 mb-2">{rawData?.event_type?.name}</div>
+          <div className="font-medium text-sm text-red-800 ">{timeSwitch(dataTime)}</div>
+          <div className="font-medium text-sm text-red-800 hidden ">{dataTime}</div>
         </div>
       </React.Fragment>)
       )
@@ -97,8 +94,11 @@ export default function EventList<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-    const [tableData, setTableData ] = useState([])
+    const [tableData, setTableData] = useState([])
+    const [socketData, setSocketData]= useState([])
+
     
+
     const table = useReactTable({
     data:tableData,
     columns,
@@ -108,7 +108,7 @@ export default function EventList<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     filterFns:{
         filterEventName:(row,columnId,filterValue)=>{
-            const target = row.original.event_type.name
+            const target = row.original?.event_type?.name
             return String(target).toLowerCase().includes(String(filterValue).toLowerCase())
         }
     },
@@ -121,10 +121,7 @@ export default function EventList<TData, TValue>({
 
     const { data:eventById, error:eventError, isLoading:eventIsLoading } = useSWR(()=>(`event/get_by_inference_job_all/${id}`))
     const { data:eventAfterAll, error:eventAfterAllError,isLoading:eventAfterAllIsLoading } = useSWR(()=>(`event/get_by_inference_job/${eventById.event_type.id}`))
-    const { data:latestEvent, error:latestEventError,isLoading:latestEventIsLoading } = useSWR(()=>(`event/get_by_inference_job/${id}`),{ refreshInterval: 500 })
-    
-    
-
+   
     useEffect(() => {
       if(!eventIsLoading){
       setTableData(eventById)
@@ -132,40 +129,35 @@ export default function EventList<TData, TValue>({
     }, [eventIsLoading]); 
 
     useEffect(() => {
-      const newEvent = latestEvent? latestEvent : []
-      const oldEvent = tableData? tableData : []
-      let newEventList = []
-      function compareTime(obj1,obj2,key){
-        const value1 = obj1[0]?.key ? obj1[0].key: {}
-        const value2 = obj2[0]?.key ? obj2[0].key : {}
-        const ans = value1 === value2        
-        return ans
+      // no-op if the socket is already connected
+      socket.connect();
+      
+      return () => {
+        socket.disconnect();
+      };
+    }, []);
+
+    useEffect(() => {
+      function onSecondEvent(value) {
+        setSocketData(value.concat(socketData));
+      }
+    
+      socket.on('event', onSecondEvent);
+    
+      return () => {
+        socket.off('event', onSecondEvent);
+      };
+    }, [socketData]);
+    
+    useEffect(() => {
+      let newList = socketData ? socketData : []
+      if(String(socketData) !=='[]'){
+      newList = newList.slice(0,20)
       }
       setTableData(() => {
-        if ( String(newEvent) !== ''){
-          newEventList = [...newEvent,...oldEvent]
-        return newEventList.slice(0,20)
-        }
+        return newList
       })
-      /* if ( String(newEvent) !== 'undefined' && String(oldEvent) !== 'undefined' ){
-        setTableData((events)=>{
-          if( String(newEvent) !== ''&& String(newEvent) !== 'undefined' && compareTime(newEvent,oldEvent,'time')) {
-            console.log('NoUpdate',compareTime(newEvent,oldEvent,'time'))
-            return oldEvent
-          }else if( String(newEvent) !== ''&& String(newEvent) !== 'undefined' && compareTime(newEvent,oldEvent,'time')) {
-            newEventList = [...newEvent,...oldEvent]
-            console.log('Update',compareTime(newEvent,oldEvent,'time'))
-
-            return newEventList.slice(0,20)
-          }
-          });
-      }else if(String(newEvent).length !== 0 && String(oldEvent).length === 0){
-        setTableData(newEvent)
-      }else if (String(newEvent).length === 0){
-        return 
-      } */
-      
-    }, [eventById,latestEvent]); 
+    },[socketData]);
 
 
     return (

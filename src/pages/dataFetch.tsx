@@ -4,31 +4,39 @@ import useSWR from 'swr'
 import axios from 'axios'
 import { useState,useEffect } from 'react';
 import { io } from 'socket.io-client';
+import { baseUrl } from '../api'
+
 
 import TestList, { testListColumn } from "../components/TaskInfo/TestList";
 
-// const socket = io('http://localhost:8123');
+const socket = io(baseUrl)
 
 export default function DataFetch(){
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [fooEvents, setFooEvents] = useState([]);
 
-  /* useEffect(() => {
-const socket = io('http://localhost:8123');
+const time = Date.now()
 
-    // Listen for 'dataUpdate' event
-    socket.on('timestamp', (receivedData) => {
-      const newTS = receivedData
-      console.log(newTS)
-      setFooEvents((prevFooEvents)=>{
-        const updateTs = [newTS,...prevFooEvents];
-        return updateTs.slice(0,20)
-      }); // Update component state with received data
-    });
+ useEffect(() => {
+  // no-op if the socket is already connected
+  socket.connect();
 
-    // Cleanup function to close the connection when component unmounts
-    return () => socket.close();
-  }, []); */
+  return () => {
+    socket.disconnect();
+  };
+}, []);
+
+useEffect(() => {
+  function onFooEvent(value) {
+    setFooEvents(fooEvents.concat(value));  
+  }
+
+  socket.on('event', onFooEvent);
+
+  return () => {
+    socket.off('event', onFooEvent);
+  };
+}, [fooEvents]);
 
   return (
     <DefaultLayout>
@@ -36,7 +44,6 @@ const socket = io('http://localhost:8123');
         <ConnectionState isConnected={ isConnected } />
         <Events events={ fooEvents } />
         <ConnectionManager />
-        <MyForm />
     </DefaultLayout>
   );
 };
@@ -46,12 +53,13 @@ function ConnectionState({ isConnected }) {
 }
 
 function Events({ events }) {
+  console.log(events)
   return (
     <ul>
     { String(events) ==='[]' ?
       " " 
       :(events.map((event, index) =>
-        <li key={ index }>{ event }</li>
+        <li key={ index }>{ String(event.time) }</li>
       ) )
     }
     </ul>
@@ -75,25 +83,4 @@ function ConnectionManager() {
   );
 }
 
-function MyForm() {
-  const [value, setValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-
-  function onSubmit(event) {
-    event.preventDefault();
-    setIsLoading(true);
-
-    socket.timeout(5000).emit('create-something', value, () => {
-      setIsLoading(false);
-    });
-  }
-
-  return (
-    <form onSubmit={ onSubmit }>
-      <input onChange={ e => setValue(e.target.value) } />
-
-      <button type="submit" disabled={ isLoading }>Submit</button>
-    </form>
-  );
-}
 

@@ -40,7 +40,7 @@ export default function StableMask({ points, scale, width, height }) {
         >
           {!scaledPoints ? null : (
             <g>
-              <polygon points={polylinePointsToPolyline(scaledPoints)} fill="rgba(175,39,47,0.3)" stroke="white" stroke-width="2" />
+              <polygon points={polylinePointsToPolyline(scaledPoints)} fill="rgba(175,39,47,0.3)" stroke="white" strokeWidth="2" />
             </g>
           )}
         </svg>
